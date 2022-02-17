@@ -1,0 +1,66 @@
+ALTER TABLE `Offer` CHANGE `offerAmmount` `offerAmount` DOUBLE NOT NULL;
+
+Vehical
+cursor.execute("INSERT INTO Vehicle (vehicleRegNo,ownerNID,modelNo,vehicleType,balance) VALUES (\"Com-457\",\"9101112\",\"Ena\",\"bus\",500.0);")
+
+Offer
+cursor.execute("INSERT INTO Offer (offerID,offerType,offerAmount,offerTime) VALUES (1,\"Recharge\",5.0,7)")
+cursor.execute("INSERT INTO Offer (offerID,offerType,offerAmount,offerTime) VALUES (2,\"TollPay\",3.0,3);")
+
+Payment Gateway
+cursor.execute("INSERT INTO PaymentGateway (gatewayName,apiSource) VALUES (\"bKash\",\"www.bkash.com\")")
+cursor.execute("INSERT INTO PaymentGateway (gatewayName,apiSource) VALUES (\"rocket\",\"www.rocket.com\")")
+
+
+TollBooth
+
+cursor.execute("INSERT INTO TollBooth (boothID,location,status) VALUES(1,\"Jatrabari Flyover\",\"on\")")
+    cursor.execute("INSERT INTO TollBooth (boothID,location,status) VALUES(2,\"Mawa Highway\",\"on\")")
+    cursor.execute("INSERT INTO TollBooth (boothID,location,status) VALUES(3,\"Gulistan Flyover\",\"on\")")
+
+Recharge
+
+cursor.execute("INSERT INTO Recharge (rechargeID,vehicleRegNo,gatewayName,offerID,amount,date) VALUES (1,\"DHA-123\",\"bKash\",1,100.0,\"2022-02-02\")")
+    cursor.execute("INSERT INTO Recharge (rechargeID,vehicleRegNo,gatewayName,offerID,amount,date) VALUES (2,\"Com-457\",\"rocket\",1,300.0,\"2022-02-12\")")
+
+TollAmount
+
+cursor.execute("INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES (\"car\",1,200.0)")
+    cursor.execute("INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES (\"bus\",1,600.0)")
+    cursor.execute("INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES (\"motorbike\",1,150.0)")
+
+    
+	
+    cursor.execute("INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES (\"car\",2,300.0)")
+    cursor.execute("INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES (\"bus\",2,700.0)")
+    cursor.execute("INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES (\"motorbike\",2,100.0)")
+
+    
+    cursor.execute("INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES (\"car\",3,210.0)")
+    cursor.execute("INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES (\"bus\",3,500.0)")
+    cursor.execute("INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES (\"motorbike\",3,120.0)")
+
+Route
+
+cursor.execute("INSERT INTO Route (routeID,vehicleRegNo,source,destination,date) VALUES (1,\"RX123\",\"BUET\",\"Jatrabari\",\"2022-02-02\")")
+cursor.execute("INSERT INTO Route (routeID,vehicleRegNo,source,destination,date) VALUES (2,\"DHA-123\",\"Gulistan\",\"Mawa\",\"2022-02-12\")")
+    
+	
+Payment
+
+cursor.execute("INSERT INTO Payment (paymentID,vehicleRegNo,routeID,amount,date) VALUES (1,\"RX123\",1,270.0,\"2022-02-02\")")
+    cursor.execute("INSERT INTO Payment (paymentID,vehicleRegNo,routeID,amount,date) VALUES (2,\"DHA-123\",2,210.0,\"2022-02-12\")")
+
+Due
+cursor.execute("INSERT INTO Due (remainderID,vehicleRegNo,boothID,amount,date) VALUES(1,\"DHA-123\",2,300,\"2022-02-12\")")
+
+
+Admin
+cursor.execute("INSERT INTO Admin (adminId,password,email,name) VALUES(1,\"123\",\"admin123@gmail.com\",\"sammo\")")
+
+PayTollList
+
+cursor.execute("INSERT INTO PaidTollList (routeID,tollBoothId,isPassed) VALUES (1,1,1)")
+    cursor.execute("INSERT INTO PaidTollList (routeID,tollBoothId,isPassed) VALUES (1,3,1)")
+    cursor.execute("INSERT INTO PaidTollList (routeID,tollBoothId,isPassed) VALUES (2,3,1)")
+	

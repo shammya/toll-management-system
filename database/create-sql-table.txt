@@ -1,0 +1,282 @@
+----------------change in data type of existing ERD
+User
+-----
+NID - string
+phoneNo - string
+
+Offer
+-----
+offerAmount = DOUBLE
+
+Vehicle
+-----
+vehicleRegNo - string
+ownerNID - string
+
+PaymentGateway
+-----
+apiSource - string
+
+Recharge
+-----
+vehicleRegNo - string
+
+Route
+-----
+vehicleRegNo - string
+
+Route
+-----
+amount - DOUBLE
+vehicleRegNo - string
+
+Due
+----
+add amount - DOUBLE  --------have to see later
+vehicleRegNo - string
+
+
+--------------step to configure database-------
+-----------in cmd 
+pip install pymysql
+---------in settings.py
+import pymysql
+pymysql.install_as_MySQLdb()
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME':'sql6473236',
+        'USER':'sql6473236', 
+        'PASSWORD':'isdgroup2',#Please provide the db password here
+        'HOST': 'sql6.freesqldatabase.com',
+        'PORT' : '3306',
+    }
+}
+
+
+--------in views.py (of apps)
+from django.shortcuts import render
+from django.db import connection
+# Create your views here.
+from django.http import HttpResponse
+def index(request):
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM PaidTollList")
+    ROW=cursor.fetchall()
+    #ROW="hello"
+        #print(object.content)
+    return HttpResponse(ROW)
+
+
+------------------how to login to online free sql database
+https://www.freesqldatabase.com/
+
+
+
+
+---------------------create tables(Already In Cloud)--------------------------
+CREATE TABLE User(\
+	NID varchar(50) NOT NULL,\
+	password varchar(50) NOT NULL,\
+	name varchar(50) NOT NULL,\
+	email varchar(100),\
+	phoneNo varchar(20) NOT NULL,\
+	address varchar(50) NOT NULL,\
+	CONSTRAINT User_pk PRIMARY KEY(NID))
+	
+CREATE TABLE VehicleType(\
+	type VARCHAR(50),\
+	CONSTRAINT VehicleType_pk PRIMARY KEY(type))
+
+CREATE TABLE Vehicle(\
+	vehicleRegNo varchar(50) NOT NULL,\
+	ownerNID varchar(50) NOT NULL,\
+	modelNo varchar(50),\
+	vehicleType varchar(50) NOT NULL,\
+	balance DOUBLE NOT NULL default 0,\
+	CONSTRAINT Vehicle_pk PRIMARY KEY(vehicleRegNo),\
+	FOREIGN KEY (ownerNID) REFERENCES User(NID),\
+	FOREIGN KEY (vehicleType) REFERENCES VehicleType(type))
+
+
+CREATE TABLE Offer(\
+	offerID int NOT NULL,\
+	offerType varchar(50) NOT NULL,\
+	offerAmount DOUBLE NOT NULL,\
+	offerTime int NOT NULL,\
+	CONSTRAINT Offer_pk PRIMARY KEY (offerID))
+
+
+CREATE TABLE PaymentGateway(\
+	gatewayName VARCHAR(50) NOT NULL,\
+	apiSource VARCHAR(200) NOT NULL,\
+	CONSTRAINT paymentGateway_pk PRIMARY KEY (gatewayName))
+
+CREATE TABLE Recharge(\
+    rechargeID int NOT NULL,\
+	vehicleRegNo varchar(50) NOT NULL,\
+	gatewayName varchar(50) NOT NULL,\
+	offerID int,\
+    amount DOUBLE NOT NULL,\
+    date DATE ,\
+    CONSTRAINT Recharge_pk PRIMARY KEY(rechargeID),\
+    FOREIGN KEY (vehicleRegNo) REFERENCES Vehicle(vehicleRegNo) ON DELETE CASCADE,\
+	FOREIGN KEY (offerID) REFERENCES Offer(offerID),\
+	FOREIGN KEY (gatewayName) REFERENCES PaymentGateway(gatewayName))
+	
+	
+CREATE TABLE TollBooth(\
+	boothID int NOT NULL,\
+	location VARCHAR(50) NOT NULL,\
+	status VARCHAR(50),
+	CONSTRAINT TollBooth_pk PRIMARY KEY(boothID))
+
+CREATE TABLE TollAmount(\
+	vehicleType varchar(50) NOT NULL,\
+	boothID int NOT NULL,\
+	amount DOUBLE NOT NULL,\
+	CONSTRAINT TollAmount_pk PRIMARY KEY(vehicleType,boothID),\
+	FOREIGN KEY (boothID) REFERENCES TollBooth(boothID),\
+	FOREIGN KEY (vehicleType) REFERENCES VehicleType(type))
+
+
+CREATE TABLE Route(\
+	routeID int NOT NULL,\
+	vehicleRegNo varchar(50),\
+	source varchar(50),\
+	destination varchar(50),\
+	date DATE,\
+	CONSTRAINT Route_pk PRIMARY KEY(routeID),\
+	FOREIGN KEY (vehicleRegNo) REFERENCES Vehicle(vehicleRegNo))
+
+
+CREATE TABLE Payment(\
+	paymentID int NOT NULL,\
+	vehicleRegNo varchar(50) NOT NULL,\
+	routeID int NOT NULL,\
+	amount DOUBLE NOT NULL,\
+	date DATE,\
+	CONSTRAINT Payment_pk PRIMARY KEY(paymentID),\
+	FOREIGN KEY (vehicleRegNo) REFERENCES Vehicle(vehicleRegNo),\
+	FOREIGN KEY (routeID) REFERENCES Route(routeID))
+
+CREATE TABLE Due(\
+	remainderID int NOT NULL,\
+	vehicleRegNo VARCHAR(50) NOT NULL,\
+	boothID int NOT NULL,\
+	amount DOUBLE,\
+	paymentID int,\
+	date DATE,\
+	CONSTRAINT Due_pk PRIMARY KEY(remainderID),\
+	FOREIGN KEY (vehicleRegNo) REFERENCES Vehicle(vehicleRegNo),\
+	FOREIGN KEY (boothID) REFERENCES TollBooth(boothID),\
+	FOREIGN KEY (paymentID) REFERENCES Payment(paymentID))
+
+CREATE TABLE Admin (\
+	adminId int NOT NULL,\
+	password VARCHAR(50) NOT NULL,\
+	email VARCHAR(100) NOT NULL,\
+	name VARCHAR(50) NOT NULL,\
+	CONSTRAINT Admin_pk PRIMARY KEY(adminId))
+
+
+
+
+CREATE TABLE PaidTollList(\
+		routeID int NOT NULL,\
+		tollBoothId int NOT NULL,\
+		isPassed BOOLEAN  NOT NULL default 0,\
+		CONSTRAINT PaidTollList_pk PRIMARY KEY(routeID,tollBoothId),\
+		FOREIGN KEY (routeID) REFERENCES Route(routeID),\
+		FOREIGN KEY (tollBoothId) REFERENCES TollBooth(boothId))
+
+
+----------------Insert Data(ALready In Cloud)-----------------------
+
+
+	INSERT INTO User (NID,password,name,email,phoneNo,address) VALUES ("1234","pass1","utsa","asifutsa@gmail.com","01700545293","Jamalpur");
+	INSERT INTO User (NID,password,name,email,phoneNo,address) VALUES ("5678","pass2","kamrul","kamrul@gmail.com","01711456789","Dhaka");
+	INSERT INTO User (NID,password,name,email,phoneNo,address) VALUES ("9101112","pass2","safayet","safayet@gmail.com","01700544293","Comilla");
+
+	INSERT INTO VehicleType VALUES("car");
+	INSERT INTO VehicleType VALUES("bus");
+	INSERT INTO VehicleType VALUES("motorbike");
+
+
+
+	INSERT INTO Vehicle (vehicleRegNo,ownerNID,modelNo,vehicleType,balance) VALUES ("RX123","1234","suzuki","motorbike",200.0);
+	INSERT INTO Vehicle (vehicleRegNo,ownerNID,modelNo,vehicleType,balance) VALUES ("DHA-123","5678","Toyota","car",1000.0);
+	INSERT INTO Vehicle (vehicleRegNo,ownerNID,modelNo,vehicleType,balance) VALUES ("Com-457","9101112","Ena","bus",500.0);
+
+
+	INSERT INTO Offer (offerID,offerType,offerAmount,offerTime) VALUES (1,"Recharge",5.0,7);
+	INSERT INTO Offer (offerID,offerType,offerAmount,offerTime) VALUES (2,"TollPay",3.0,3);
+
+	INSERT INTO PaymentGateway (gatewayName,apiSource) VALUES ("bKash","www.bkash.com")
+	INSERT INTO PaymentGateway (gatewayName,apiSource) VALUES ("rocket","www.rocket.com")
+
+	INSERT INTO Recharge (rechargeID,vehicleRegNo,gatewayName,offerID,amount,date) VALUES (1,"DHA-123","bKash",1,100.0,"2022-02-02");
+	INSERT INTO Recharge (rechargeID,vehicleRegNo,gatewayName,offerID,amount,date) VALUES (2,"Com-457","rocket",1,300.0,"2022-02-12");
+
+	INSERT INTO TollBooth (boothID,location,status) VALUES(1,"Jatrabari Flyover","on");
+	INSERT INTO TollBooth (boothID,location,status) VALUES(2,"Mawa Highway","on");
+	INSERT INTO TollBooth (boothID,location,status) VALUES(3,"Gulistan Flyover","on");
+
+
+	INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES ("car",1,200.0);
+	INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES ("bus",1,600.0);
+	INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES ("motorbike",1,150.0);
+
+	INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES ("car",2,300.0);
+	INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES ("bus",2,700.0);
+	INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES ("motorbike",2,100.0);
+
+	INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES ("car",3,210.0);
+	INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES ("bus",3,500.0);
+	INSERT INTO TollAmount (vehicleType,boothID,amount) VALUES ("motorbike",3,120.0);
+
+
+	INSERT INTO Route (routeID,vehicleRegNo,source,destination,date) VALUES (1,"RX123","BUET","Jatrabari","2022-02-02")
+	INSERT INTO Route (routeID,vehicleRegNo,source,destination,date) VALUES (2,"DHA-123","Gulistan","Mawa","2022-02-12")
+
+
+	INSERT INTO Payment (paymentID,vehicleRegNo,routeID,amount,date) VALUES (1,"RX123",1,270.0,"2022-02-02")
+	INSERT INTO Payment (paymentID,vehicleRegNo,routeID,amount,date) VALUES (2,"DHA-123",2,210.0,"2022-02-12")
+
+	INSERT INTO Due (remainderID,vehicleRegNo,boothID,amount,date) VALUES(1,"DHA-123",2,300,"2022-02-12") 
+
+
+	INSERT INTO Admin (adminId,password,email,name) VALUES(1,"123","admin123@gmail.com","sammo"); 
+
+	INSERT INTO PaidTollList (routeID,tollBoothId,isPassed) VALUES (1,1,1);
+	INSERT INTO PaidTollList (routeID,tollBoothId,isPassed) VALUES (1,3,1);
+
+	INSERT INTO PaidTollList (routeID,tollBoothId,isPassed) VALUES (2,3,1);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
