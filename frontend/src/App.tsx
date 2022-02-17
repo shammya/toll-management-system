@@ -1,9 +1,11 @@
 import "./App.css";
+import SignUp from "./components/auth/sign-up";
 
 function App() {
   return (
     <div className="App">
-      Hu ha ha... <br /> Frontend ready to build
+      {/* <SignUp /> */}
+      <SignUp />
     </div>
   );
 }
