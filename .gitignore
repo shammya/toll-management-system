@@ -21,3 +21,9 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+#backend files ignore
+
+/backend/backend/__pycache__
+/backend/finance/__pycache__
+/backend/finance/migrations/__pycache__
