@@ -1,0 +1,18 @@
+1.home page
+ a.recharge
+ b.view list of dues
+ c.pick a route
+ d.offers
+ f.signup
+ g.login
+
+2.recharge
+ a.recharge user wallet(form)
+
+3.view list of dues
+
+4.offerList
+
+6.signup
+
+7.login

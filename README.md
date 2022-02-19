@@ -17,3 +17,11 @@
 - Run `npm install` to import all node-modules.
 - After successfully importing node-modules run `npm start` to run the frontend.
 - Wait for a while, A window will open in browser. And thats it...
+
+
+
+# for backend prequisites
+
+- pip install djangorestframework
+
+- pip install django-cors-headers
