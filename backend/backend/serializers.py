@@ -2,7 +2,6 @@ from email.policy import default
 from msilib.schema import ServiceInstall
 from rest_framework import serializers
 
-
 # for user table
 class UserSerializer(serializers.Serializer):
         nid = serializers.CharField(max_length=50)

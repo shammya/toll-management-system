@@ -20,7 +20,8 @@ from rest_framework import routers
 # router.register(r'snippetss', views.snippet_list, 'snippets')  
 
 urlpatterns = [
-    path('', include('finance.urls')),
+    path('finance/', include('finance.urls')),
+    path('', include('user.urls')),
     # path('', include(router.urls)),            
 ]
 

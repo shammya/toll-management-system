@@ -18,7 +18,6 @@ from sqlite3 import Row
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
-from finance.serializers import SnippetSerializer
 
 
 from rest_framework.decorators import api_view

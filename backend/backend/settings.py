@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #  'finance.apps.FinanceConfig',
     'finance',
+    'user',
     'corsheaders',
     'rest_framework',
 ]
