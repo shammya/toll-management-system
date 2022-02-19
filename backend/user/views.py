@@ -101,7 +101,7 @@ class Signup(APIView):
 class Logout(APIView):
     def post(self, request, format=None):
         try:
-            del request.session['user']
+            del request.session['vehicle']
         except:
             return JsonResponse({
                     "logoutSuccess": False,
