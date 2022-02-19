@@ -107,47 +107,6 @@ def index(request):
     
     
     
-class homepageView(APIView):
-    
-    def get(self, request, format=None):
-        
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM Offer")
-        offers=cursor.fetchall()
-        # print(offers)
-        
-        offersdata = []
-        
-        for off in offers:
-            type = off[1]
-            amount = off[2]
-            time = off[3]
-            
-            row = {'offerType' : type, 'offerAmount' : amount, 'offerTime' : time}
-            
-            offersdata.append(row)
-            
-        serializer = OfferSerializer(offersdata, many=True).data
-        
-        print(serializer)
-        
-        return JsonResponse(offersdata, safe=False)
-        
-        
-    
-    
-    # def post(self, request, format=None):
-        
-    #     serializer = SnippetSerializer(data=request.data)
-    
-    #     print(serializer.initial_data)
-    #     if serializer.is_valid():
-    #         print(serializer.data)
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    
 class Recharge(APIView):
     
     def get(self, request, format=None):
