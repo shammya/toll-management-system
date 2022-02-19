@@ -1,4 +1,5 @@
 from email.policy import default
+from logging import info
 from msilib.schema import ServiceInstall
 from rest_framework import serializers
 
@@ -25,8 +26,8 @@ class VehicleSerializer(serializers.Serializer):
 
 # for Offer table
 class OfferSerializer(serializers.Serializer):
-        offerID = serializers.IntegerField()
-        offerType = serializers.CharField(max_length=50)
+        # offerID = serializers.IntegerField()
+        offerType = serializers.CharField()
         offerAmount = serializers.FloatField(default=0)
         offerTime = serializers.IntegerField()
 
@@ -37,12 +38,12 @@ class PaymentGatewaySerializer(serializers.Serializer):
 
 # for Recharge table
 class RechargeSerializer(serializers.Serializer):
-        rechargeID = serializers.IntegerField()
+        # rechargeID = serializers.IntegerField()
         vehicleRegNo = serializers.CharField(max_length=50)
         gatewayName = serializers.CharField(max_length=50)
         offerID = serializers.IntegerField()
         amount = serializers.FloatField()
-        date = serializers.DateTimeField()
+        date = serializers.DateField(input_formats=None)
 
 # for TollBooth table
 class TollBoothSerializer(serializers.Serializer):
@@ -51,7 +52,7 @@ class TollBoothSerializer(serializers.Serializer):
         status = serializers.CharField(max_length=50)
 
     
-
+# for TollBooth amount info
 class TollAmount(serializers.Serializer):
         vehicleType = serializers.CharField()
         boothId = serializers.IntegerField()
@@ -59,7 +60,7 @@ class TollAmount(serializers.Serializer):
         
 
 
-
+# for Route info
 class Route(serializers.Serializer):
         routeId = serializers.IntegerField()
         vehicleRegno = serializers.CharField()
@@ -68,7 +69,7 @@ class Route(serializers.Serializer):
         date = serializers.DateField()
         
 
-
+# for payment info
 class Payment(serializers.Serializer):
         paymentId = serializers.IntegerField()
         vehicleRegno = serializers.CharField()
@@ -76,7 +77,7 @@ class Payment(serializers.Serializer):
         amount = serializers.FloatField()
         date = serializers.DateField()
               
-        
+# for due info   
 class Due(serializers.Serializer):
         reminderId = serializers.IntegerField()
         vehicleRegNo = serializers.CharField()
@@ -85,13 +86,14 @@ class Due(serializers.Serializer):
         paymentId = serializers.IntegerField()
         date = serializers.DateField()
         
-        
+# for admin info   
 class Admin(serializers.Serializer):
         adminId = serializers.IntegerField()
         adminPass = serializers.CharField()
         adminEmail = serializers.EmailField()
         adminName = serializers.CharField()
         
+# for paid toll list info
 class PaidTollList(serializers.Serializer):
         routeId = serializers.IntegerField()
         tollBoothId = serializers.IntegerField()
