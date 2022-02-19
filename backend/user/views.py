@@ -74,7 +74,11 @@ class Login(APIView):
 class Signup(APIView):
     def post(self, request, format=None):
         # get the login vehicle no and password
-        vehicle = request.POST.get('vehicle')
+        mobileno = request.POST.get('mobileno')
+        fname = request.POST.get('fname')
+        lname = request.POST.get('lname')
+        license = request.POST.get('license')
+        vehicletype = request.POST.get('vehicletype')
         password = request.POST.get('password')
 
         ###########################################
