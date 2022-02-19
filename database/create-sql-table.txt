@@ -107,6 +107,7 @@ CREATE TABLE Offer(\
 	offerTime int NOT NULL,\
 	CONSTRAINT Offer_pk PRIMARY KEY (offerID))
 
+//PAYMENT GATEWAY MAYBE REDUNDENT
 
 CREATE TABLE PaymentGateway(\
 	gatewayName VARCHAR(50) NOT NULL,\
