@@ -14,6 +14,7 @@
 #     return HttpResponse(ROW)
 
 
+import datetime
 from sqlite3 import Row
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -43,67 +44,67 @@ def index(request):
     return HttpResponse(ROW)
  
     
-class SnippetList(APIView):
-    """
-    List all snippets, or create a new snippet.
-    """
-    def get(self, request, format=None):
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM PaidTollList")
-        ROW1=cursor.fetchall()
-        print(ROW1)
+# class SnippetList(APIView):
+#     """
+#     List all snippets, or create a new snippet.
+#     """
+#     def get(self, request, format=None):
+#         cursor = connection.cursor()
+#         cursor.execute("SELECT * FROM PaidTollList")
+#         ROW1=cursor.fetchall()
+#         print(ROW1)
         
         
         
-    #     dic = {}
-    #     data = []
-    #     totalcost = 0
+#     #     dic = {}
+#     #     data = []
+#     #     totalcost = 0
 
-    #     for r in result:
-    #         month       = r[1]
-    #         year        = r[2]
-    #         salary      = r[3]
-    #         row = {'month': month, 'year': year, 'salary': salary}
-    #         totalcost = totalcost + int(r[3])
-    #         data.append(row)
-    #     data = sorted(data, key=lambda x: (datetime.strptime(x['month'][:3], '%b'), x['year']))
-    #     dic['data'] = data
-    #     dic['totalcost'] = totalcost
-    # # return render(request, 'employee/workh.html', {'login' : conf.login, 'data' : dic, 'msg' : msg, 'user' : conf.getuser()})
+#     #     for r in result:
+#     #         month       = r[1]
+#     #         year        = r[2]
+#     #         salary      = r[3]
+#     #         row = {'month': month, 'year': year, 'salary': salary}
+#     #         totalcost = totalcost + int(r[3])
+#     #         data.append(row)
+#     #     data = sorted(data, key=lambda x: (datetime.strptime(x['month'][:3], '%b'), x['year']))
+#     #     dic['data'] = data
+#     #     dic['totalcost'] = totalcost
+#     # # return render(request, 'employee/workh.html', {'login' : conf.login, 'data' : dic, 'msg' : msg, 'user' : conf.getuser()})
         
         
-    #     for r in ROW1:
+#     #     for r in ROW1:
             
-    #         one = r[1]
-    #         two = r[2]
-    #         three = r[3]
+#     #         one = r[1]
+#     #         two = r[2]
+#     #         three = r[3]
             
-    #         row = {'one' : one, 'two' : two, 'three' : three}
+#     #         row = {'one' : one, 'two' : two, 'three' : three}
             
-    #         data.append(row)        
+#     #         data.append(row)        
         
         
         
         
         
         
-        yourdata = [{"id": 1, "title": "Helllloooooo", "description": "hello here", "completed": True}, {"id": 1, "title": "bla", "description": "hello here", "completed": True}]
+#         yourdata = [{"id": 1, "title": "Helllloooooo", "description": "hello here", "completed": True}, {"id": 1, "title": "bla", "description": "hello here", "completed": True}]
         
-        serializer = SnippetSerializer(yourdata, many=True).data
+#         serializer = SnippetSerializer(yourdata, many=True).data
         
-        print(serializer)
-        return JsonResponse(serializer, safe=False)
+#         print(serializer)
+#         return JsonResponse(serializer, safe=False)
 
-    def post(self, request, format=None):
+#     def post(self, request, format=None):
         
-        serializer = SnippetSerializer(data=request.data)
+#         serializer = SnippetSerializer(data=request.data)
     
-        print(serializer.initial_data)
-        if serializer.is_valid():
-            print(serializer.data)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         print(serializer.initial_data)
+#         if serializer.is_valid():
+#             print(serializer.data)
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
     
@@ -131,21 +132,21 @@ class homepageView(APIView):
         
         print(serializer)
         
-        return JsonResponse(serializer, safe=False)
+        return JsonResponse(offersdata, safe=False)
         
         
     
     
-    def post(self, request, format=None):
+    # def post(self, request, format=None):
         
-        serializer = SnippetSerializer(data=request.data)
+    #     serializer = SnippetSerializer(data=request.data)
     
-        print(serializer.initial_data)
-        if serializer.is_valid():
-            print(serializer.data)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #     print(serializer.initial_data)
+    #     if serializer.is_valid():
+    #         print(serializer.data)
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
 class Recharge(APIView):
@@ -174,6 +175,9 @@ class Recharge(APIView):
         
         print(offerserializer)
         
+        # Here query is needed for specific user or vehicle
+        # vehicle = request.POST.get('vehicle')
+
         
         cursor.execute("SELECT * FROM Recharge")
         recharges = cursor.fetchall()
@@ -204,5 +208,51 @@ class Recharge(APIView):
         # })
         return JsonResponse({
             "rechargeHistory": rechargeserializer,
-            "offers*": offerserializer
+            "offers": offerserializer
         })
+        
+    def post(self, request, format=None):
+        
+        
+        rechargeInfo = request.data
+        
+        offerID = rechargeInfo['offerID']
+        gateway = rechargeInfo['gatewayName']
+        amount = rechargeInfo['amount']
+        date = datetime.today().strftime('%Y-%m-%d')
+        vehicleRegNo = request.POST.get('vehicle')
+        
+        # here sql query is needed for entry for a recharge for specific vehicle reg no
+
+        return JsonResponse(True)
+    
+class Due(APIView):
+    
+    def get(self, request, format=None):
+        
+        cursor = connection.cursor()
+        # here sql query is needed
+        cursor.execute("SELECT * FROM Due")
+        dues=cursor.fetchall()
+        duesdata = []
+        
+        for due in dues:
+            
+            vehicleNo = due[1]
+            boothid = due[2]
+            # here a query is needed for booth name regarding to the boothid
+            boothName = boothid
+            amount = due[3]
+            date = due[5]
+            print(date)
+            
+            row = {'vehicleRegNo' : vehicleNo, 'boothName' : boothid, 'dueAmount' : amount, 'date' : date}
+            
+            duesdata.append(row)
+        
+        return JsonResponse(duesdata)
+        
+    
+    def post(self, request, format=None):
+        
+        pass
