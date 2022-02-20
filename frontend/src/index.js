@@ -1,13 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import { BrowserRouter } from "react-router-dom";
 import App from './App';
+import './index.css';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
-  <React.StrictMode>
+  <BrowserRouter>
+    {/* <Fade>
+      <MuiPickersUtilsProvider utils={DateFnsUtils}>
+        <MuiThemeProvider theme={darkTheme}>
+          <SnackbarProvider maxSnack={12}>
+            <ScrollToTop /> */}
     <App />
-  </React.StrictMode>,
+    {/* </SnackbarProvider>
+        </MuiThemeProvider>
+      </MuiPickersUtilsProvider>
+    </Fade> */}
+  </BrowserRouter>,
   document.getElementById('root')
 );
 

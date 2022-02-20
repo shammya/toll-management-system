@@ -1,14 +1,10 @@
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { Card, CardActionArea, CardContent, Chip } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-import Link from "@mui/material/Link";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import TextField from "@mui/material/TextField";
+import { createTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import * as React from "react";
+import User from "../layout/User";
 
 const theme = createTheme();
 
@@ -24,77 +20,83 @@ export default function Home() {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs">
-        {/* <CssBaseline /> */}
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
-            sx={{ mt: 1 }}
-          >
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Mobile no"
-              name="mobile-no"
-              autoComplete="mobile-no"
-              autoFocus
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-            />
-            {/* <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            /> */}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-        {/* <Copyright sx={{ mt: 8, mb: 4 }} /> */}
-      </Container>
-    </ThemeProvider>
+    <User title="Home">
+      <Grid
+        container
+        padding={2}
+        spacing={2}
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Grid item xs={8}>
+          <Chip
+            label="Balance 30"
+            sx={{ width: "100%", textAlign: "center", fontSize: 20 }}
+          />
+        </Grid>
+        <Grid item xs={4} justifyContent="center">
+          <Avatar
+            src={require("assets/img/user.jpg")}
+            sx={{ width: 100, height: 100 }}
+          />
+        </Grid>
+      </Grid>
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <Card>
+            <CardActionArea>
+              <CardContent sx={{ height: 100 }}>
+                <Grid
+                  sx={{ height: "100%" }}
+                  container
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <Grid item>
+                    <Typography variant="h5">Recharge</Typography>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Grid>
+        <Grid item xs={6}>
+          <Card>
+            <CardActionArea>
+              <CardContent sx={{ height: 100 }}>
+                <Grid
+                  sx={{ height: "100%" }}
+                  container
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <Grid item>
+                    <Typography variant="h5">Payments</Typography>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Grid>
+        <Grid item xs={6}>
+          <Card>
+            <CardActionArea>
+              <CardContent sx={{ height: 100 }}>
+                <Grid
+                  sx={{ height: "100%" }}
+                  container
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <Grid item>
+                    <Typography variant="h5">Dues</Typography>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Grid>
+      </Grid>
+    </User>
   );
 }

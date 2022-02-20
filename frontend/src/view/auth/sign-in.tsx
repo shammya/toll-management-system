@@ -9,37 +9,43 @@ import Link from "@mui/material/Link";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import axios from "axios";
+import { GLOBAL } from "Configure";
 import * as React from "react";
-
-function Copyright(props: any) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const theme = createTheme();
 
 export default function SignIn() {
+  const history = useHistory();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     // eslint-disable-next-line no-console
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    // vehicle = request.POST.get('vehicle')
+    // password = request.POST.get('password')
+    axios
+      .post(GLOBAL.HOST + `/login`, { vehicle: 123, password: "12345" })
+      .then((request) => {
+        // if (response.data.stringValue) {
+        //   setMessage(response.data.stringValue);
+        //   setOpen(true);
+        //   console.log("don't match");
+        // } else if (response.data.token) {
+        //   console.log(username);
+        //   localStorage.setItem("user", JSON.stringify(response.data));
+        //   console.log(AuthService.getCurrentUser());
+        //   if (response.data.accountType === "Admin") {
+        //     history.push({ pathname: "/admin" });
+        //   } else {
+        //     history.push({ pathname: "/home" });
+        //   }
+        // }
+        console.log(request);
+        if (request.data) {
+          history.push({ pathname: "/home" });
+        }
+      });
   };
 
   return (
