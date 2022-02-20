@@ -185,7 +185,7 @@ class Recharge(APIView):
         
         # here sql query is needed for entry for a recharge for specific vehicle reg no and increase his main balance/vehicle balance
 
-        return JsonResponse(True)
+        return JsonResponse(True, safe = False)
     
 class Due(APIView):
     
@@ -246,3 +246,90 @@ class Due(APIView):
         
         else:
             return JsonResponse(False, safe=False)
+        
+        
+class RouteSelection(APIView):
+    
+    def get(self, request, format = None):
+        
+        # here toll booth table has to be update
+        # where in place of location two parameters will be given
+        # a X and Y position
+        
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM TollBooth")
+        tollbooths = cursor.fetchall()
+        
+        tollBoothData = []
+        
+        for tolls in tollbooths:
+            
+            boothID = tolls[0]
+            posX = tolls[2]
+            posY = tolls[3]
+            location = tolls[1]
+            
+            row = {'boothID' : boothID, 'posX' : posX, 'posY' : posY, 'location' : location}
+            
+            tollBoothData = tollBoothData.append(row)
+            
+        return JsonResponse(tollBoothData, safe=False)
+    
+    def post(self, request, format = None):
+        
+        selectedTolllist = request.data
+        
+        totalTollamount = 0
+        gotamountfromql = 0
+        tollAmount = []
+        for toll in selectedTolllist:
+            
+            boothID = toll['boothID']
+
+            # here a sql query is needed for searching the tollbooth and tollamount for specific vehicleType get the toll amount
+            totalTollamount += gotamountfromql
+        
+        row = {'tollAmount' : totalTollamount}
+        
+        tollAmount.append(row)
+        
+        return JsonResponse(tollAmount, safe = False)
+    
+    
+class PaymentRoute(APIView):
+    
+    def post(self, request, format = None):
+        
+        selectedTolllist = request.data
+        
+        totalTollamount = 0
+        gotamountfromql = 0
+        tollAmount = []
+        selectedTolls = []
+        for toll in selectedTolllist:
+            
+            boothID = toll['boothID']
+            selectedTolls.append(boothID)
+            # here a sql query is needed for searching the tollbooth and tollamount for specific vehicleType get the toll amount 
+            totalTollamount += gotamountfromql
+            
+            
+        
+        # here a query is needed to check the balance for user againnts the total toll amount
+        
+        balance = 0
+        
+        if(balance >= totalTollamount):
+            # here query is needed to make entry in the payment table for the seleced booths
+            # the list can be found from the selectedTolls.
+            
+            for id in selectedTolls:
+                pass
+            
+            
+            return JsonResponse(True, safe = False)
+        
+        else:
+            
+            return JsonResponse(False, safe = False)
+    
