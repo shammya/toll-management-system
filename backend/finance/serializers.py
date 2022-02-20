@@ -50,6 +50,8 @@ class RechargeSerializer(serializers.Serializer):
 class TollBoothSerializer(serializers.Serializer):
         boothID = serializers.IntegerField()
         location = serializers.CharField(max_length=50)
+        posX = serializers.IntegerField()
+        posY = serializers.IntegerField()
         status = serializers.CharField(max_length=50)
 
     

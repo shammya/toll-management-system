@@ -127,7 +127,7 @@ CREATE TABLE Recharge(\
 	FOREIGN KEY (gatewayName) REFERENCES PaymentGateway(gatewayName))
 	
 	
-CREATE TABLE TollBooth(\
+CREATE TABLE Eth(\
 	boothID int NOT NULL,\
 	location VARCHAR(50) NOT NULL,\
 	status VARCHAR(50),
