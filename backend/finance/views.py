@@ -15,6 +15,7 @@
 
 
 import datetime
+from math import remainder
 from sqlite3 import Row
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -180,7 +181,7 @@ class Recharge(APIView):
         date = datetime.today().strftime('%Y-%m-%d')
         vehicleRegNo = request.POST.get('vehicle')
         
-        # here sql query is needed for entry for a recharge for specific vehicle reg no
+        # here sql query is needed for entry for a recharge for specific vehicle reg no and increase his main balance/vehicle balance
 
         return JsonResponse(True)
     
@@ -190,12 +191,14 @@ class Due(APIView):
         
         cursor = connection.cursor()
         # here sql query is needed
+        # search dues for specific users
         cursor.execute("SELECT * FROM Due")
         dues=cursor.fetchall()
         duesdata = []
         
         for due in dues:
             
+            remainderID = due[0]
             vehicleNo = due[1]
             boothid = due[2]
             # here a query is needed for booth name regarding to the boothid
@@ -213,4 +216,28 @@ class Due(APIView):
     
     def post(self, request, format=None):
         
-        pass
+        paylist = request.data
+        payamount = 0
+        gotamountfromql = 0
+        remainderIDList = []
+        for pay in paylist:
+            
+            remainderID = pay['reminderID']
+            # here a sql query is needed for searching the dues for specific users and fetch them to get the toll amount
+            payamount += gotamountfromql
+            remainderIDList.append(remainderID)
+            
+        
+        # here a sql query is needed for the specific user if he can pay for the certain amount from his account balance
+        
+        balance = 0
+        if(balance >= payamount):
+            # here a sql query is needed to clear the dues for the specific user
+            # delete operation for users
+            # got the reminderID from remainderIDList
+            # should this true value be in any variable???
+            return JsonResponse(True)
+        
+        else:
+            return JsonResponse(False)    
+        
