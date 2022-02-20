@@ -15,6 +15,7 @@
 
 
 import datetime
+from math import remainder
 from sqlite3 import Row
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -173,16 +174,18 @@ class Recharge(APIView):
         
         
         rechargeInfo = request.data
-        
+        print("===========")
+        print("heha vodox")
+        print("===========")
         offerID = rechargeInfo['offerID']
         gateway = rechargeInfo['gatewayName']
         amount = rechargeInfo['amount']
         date = datetime.today().strftime('%Y-%m-%d')
-        vehicleRegNo = request.POST.get('vehicle')
+        # vehicleRegNo = request.POST.get('vehicle')
         
-        # here sql query is needed for entry for a recharge for specific vehicle reg no
+        # here sql query is needed for entry for a recharge for specific vehicle reg no and increase his main balance/vehicle balance
 
-        return JsonResponse(True)
+        return JsonResponse(True, safe = False)
     
 class Due(APIView):
     
@@ -190,12 +193,17 @@ class Due(APIView):
         
         cursor = connection.cursor()
         # here sql query is needed
+        # search dues for specific users
         cursor.execute("SELECT * FROM Due")
         dues=cursor.fetchall()
+        print("===========")
+        print(dues)
+        print("===========")
         duesdata = []
         
         for due in dues:
             
+            remainderID = due[0]
             vehicleNo = due[1]
             boothid = due[2]
             # here a query is needed for booth name regarding to the boothid
@@ -208,9 +216,120 @@ class Due(APIView):
             
             duesdata.append(row)
         
-        return JsonResponse(duesdata)
+        return JsonResponse(duesdata, safe=False)
         
     
     def post(self, request, format=None):
         
-        pass
+        paylist = request.data
+        payamount = 0
+        gotamountfromql = 0
+        remainderIDList = []
+        for pay in paylist:
+            
+            remainderID = pay['reminderID']
+            print(remainderID)
+            # here a sql query is needed for searching the dues for specific users and fetch them to get the toll amount
+            payamount += gotamountfromql
+            remainderIDList.append(remainderID)
+            
+        
+        # here a sql query is needed for the specific user if he can pay for the certain amount from his account balance
+        
+        balance = 0
+        if(balance >= payamount):
+            # here a sql query is needed to clear the dues for the specific user
+            # delete operation for users
+            # got the reminderID from remainderIDList
+            # should this true value be in any variable???
+            return JsonResponse(True, safe=False)
+        
+        else:
+            return JsonResponse(False, safe=False)
+        
+        
+class RouteSelection(APIView):
+    
+    def get(self, request, format = None):
+        
+        # here toll booth table has to be update
+        # where in place of location two parameters will be given
+        # a X and Y position
+        
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM TollBooth")
+        tollbooths = cursor.fetchall()
+        
+        tollBoothData = []
+        
+        for tolls in tollbooths:
+            
+            boothID = tolls[0]
+            posX = tolls[2]
+            posY = tolls[3]
+            location = tolls[1]
+            
+            row = {'boothID' : boothID, 'posX' : posX, 'posY' : posY, 'location' : location}
+            
+            tollBoothData = tollBoothData.append(row)
+            
+        return JsonResponse(tollBoothData, safe=False)
+    
+    def post(self, request, format = None):
+        
+        selectedTolllist = request.data
+        
+        totalTollamount = 0
+        gotamountfromql = 0
+        tollAmount = []
+        for toll in selectedTolllist:
+            
+            boothID = toll['boothID']
+
+            # here a sql query is needed for searching the tollbooth and tollamount for specific vehicleType get the toll amount
+            totalTollamount += gotamountfromql
+        
+        row = {'tollAmount' : totalTollamount}
+        
+        tollAmount.append(row)
+        
+        return JsonResponse(tollAmount, safe = False)
+    
+    
+class PaymentRoute(APIView):
+    
+    def post(self, request, format = None):
+        
+        selectedTolllist = request.data
+        
+        totalTollamount = 0
+        gotamountfromql = 0
+        tollAmount = []
+        selectedTolls = []
+        for toll in selectedTolllist:
+            
+            boothID = toll['boothID']
+            selectedTolls.append(boothID)
+            # here a sql query is needed for searching the tollbooth and tollamount for specific vehicleType get the toll amount 
+            totalTollamount += gotamountfromql
+            
+            
+        
+        # here a query is needed to check the balance for user againnts the total toll amount
+        
+        balance = 0
+        
+        if(balance >= totalTollamount):
+            # here query is needed to make entry in the payment table for the seleced booths
+            # the list can be found from the selectedTolls.
+            
+            for id in selectedTolls:
+                pass
+            
+            
+            return JsonResponse(True, safe = False)
+        
+        else:
+            
+            return JsonResponse(False, safe = False)
+    
