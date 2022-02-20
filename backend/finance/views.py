@@ -173,12 +173,14 @@ class Recharge(APIView):
         
         
         rechargeInfo = request.data
-        
+        print("===========")
+        print("heha vodox")
+        print("===========")
         offerID = rechargeInfo['offerID']
         gateway = rechargeInfo['gatewayName']
         amount = rechargeInfo['amount']
         date = datetime.today().strftime('%Y-%m-%d')
-        vehicleRegNo = request.POST.get('vehicle')
+        # vehicleRegNo = request.POST.get('vehicle')
         
         # here sql query is needed for entry for a recharge for specific vehicle reg no
 
@@ -192,6 +194,9 @@ class Due(APIView):
         # here sql query is needed
         cursor.execute("SELECT * FROM Due")
         dues=cursor.fetchall()
+        print("===========")
+        print(dues)
+        print("===========")
         duesdata = []
         
         for due in dues:
@@ -208,9 +213,33 @@ class Due(APIView):
             
             duesdata.append(row)
         
-        return JsonResponse(duesdata)
+        return JsonResponse(duesdata, safe=False)
         
     
     def post(self, request, format=None):
         
-        pass
+        paylist = request.data
+        payamount = 0
+        gotamountfromql = 0
+        remainderIDList = []
+        for pay in paylist:
+            
+            remainderID = pay['reminderID']
+            print(remainderID)
+            # here a sql query is needed for searching the dues for specific users and fetch them to get the toll amount
+            payamount += gotamountfromql
+            remainderIDList.append(remainderID)
+            
+        
+        # here a sql query is needed for the specific user if he can pay for the certain amount from his account balance
+        
+        balance = 0
+        if(balance >= payamount):
+            # here a sql query is needed to clear the dues for the specific user
+            # delete operation for users
+            # got the reminderID from remainderIDList
+            # should this true value be in any variable???
+            return JsonResponse(True, safe=False)
+        
+        else:
+            return JsonResponse(False, safe=False)
