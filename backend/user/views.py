@@ -1,4 +1,5 @@
 from backend.serializers import *
+import conf
 
 from django.shortcuts import render, redirect
 from django.http import Http404, HttpResponse, JsonResponse
@@ -13,9 +14,7 @@ from rest_framework.response import Response
 class Home(APIView):
     def get(self, request, format=None):
         # if the user is logged in then
-        if 'vehicle' in request.session:
-            # create a new session
-            current_user = request.session['vehicle']
+        if conf.vehicleRegNo:
             # get data from db cursor
             cursor = connection.cursor()
             cursor.execute("SELECT * FROM Offer")
@@ -35,6 +34,7 @@ class Home(APIView):
             print(serializedOffers)
             # return the dictionary as json response
             return JsonResponse({
+                "userdata" : {"username" : conf.name, "email" : conf.email, "balance" : conf.balance},
                 "offers" : serializedOffers,
                 }, safe=False)
         # if the user is not logged in then
@@ -56,11 +56,11 @@ class Login(APIView):
         # following (user+pass) exists and figure out
         # if login success or failure
         ###########################################
-
+        nid1, password1, name1, email1, phoneNo1, address1, vehicleRegNo1, vehicleType1, balance1 = 0
         check_user = True
         if check_user:
             # if user is logged in
-            request.session['vehicle'] = vehicle
+            conf.login(nid1, password1, name1, email1, phoneNo1, address1, vehicleRegNo1, vehicleType1, balance1)
             return JsonResponse({
                 "loginSuccess": True,
                 }, safe=False)
@@ -105,7 +105,7 @@ class Signup(APIView):
 class Logout(APIView):
     def post(self, request, format=None):
         try:
-            del request.session['vehicle']
+            conf.logout()
         except:
             return JsonResponse({
                     "logoutSuccess": False,
