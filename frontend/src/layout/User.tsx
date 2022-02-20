@@ -2,7 +2,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { AppBar, IconButton, Toolbar } from "@mui/material";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { createTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import * as React from "react";
 
@@ -25,7 +25,7 @@ export default function User({
     setAnchorEl(null);
   };
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <AppBar position="static">
         <Toolbar>
           <IconButton
@@ -50,7 +50,7 @@ export default function User({
       <Container component="main" maxWidth="xs">
         {children}
       </Container>
-    </ThemeProvider>
+    </>
   );
 }
 

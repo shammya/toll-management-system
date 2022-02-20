@@ -5,10 +5,27 @@ import { createTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import * as React from "react";
 import User from "../layout/User";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const theme = createTheme();
 
+const pages = [
+  {
+    name: "Recharge",
+    src: "/recharge",
+  },
+  {
+    name: "Browse Route",
+    src: "/browse",
+  },
+  {
+    name: "Dues",
+    src: "/dues",
+  },
+];
+
 export default function Home() {
+  const history = useHistory();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -42,24 +59,31 @@ export default function Home() {
         </Grid>
       </Grid>
       <Grid container spacing={2}>
-        <Grid item xs={6}>
-          <Card>
-            <CardActionArea>
-              <CardContent sx={{ height: 100 }}>
-                <Grid
-                  sx={{ height: "100%" }}
-                  container
-                  justifyContent="center"
-                  alignItems="center"
-                >
-                  <Grid item>
-                    <Typography variant="h5">Recharge</Typography>
+        {pages.map((page) => (
+          <Grid item xs={6}>
+            <Card>
+              <CardActionArea
+                onClick={(event) => {
+                  history.push(page.src);
+                }}
+              >
+                <CardContent sx={{ height: 100 }}>
+                  <Grid
+                    sx={{ height: "100%" }}
+                    container
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <Grid item>
+                      <Typography variant="h5">{page.name}</Typography>
+                    </Grid>
                   </Grid>
-                </Grid>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        </Grid>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
+        ))}
+
         <Grid item xs={6}>
           <Card>
             <CardActionArea>
