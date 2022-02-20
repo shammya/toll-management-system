@@ -4,15 +4,18 @@ import { BrowserRouter } from "react-router-dom";
 import App from './App';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
+import { SnackbarProvider } from 'notistack';
 
 ReactDOM.render(
   <BrowserRouter>
+    <SnackbarProvider>
+      <App />
+    </SnackbarProvider>
     {/* <Fade>
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
         <MuiThemeProvider theme={darkTheme}>
           <SnackbarProvider maxSnack={12}>
             <ScrollToTop /> */}
-    <App />
     {/* </SnackbarProvider>
         </MuiThemeProvider>
       </MuiPickersUtilsProvider>
