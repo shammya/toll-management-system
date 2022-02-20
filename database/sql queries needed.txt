@@ -75,3 +75,28 @@ POST------>>>>>>>>>
 QUERY IS NEEDED FOR MAKING PAYMENT TABLE ENTRY AND ALSO UPDATE THE BALANCE
 
 4.UPDATE (ROUTE ID?? NOT SURE)
+
+
+
+========================
+FOR BACKEND/USER/VIEWS
+========================
+CLASS Home
+--------------
+GET--->>>>
+---------
+1. A QUERY IS NEEDED TO GET THE LIST OF ALL OFFERS
+
+CLASS Login
+--------------
+POST--->>>>
+---------
+1. A QUERY IS NEEDED TO CHECK IF THE (USER+PASS) COMBO EXISTS IN DATABASE
+2. NEEDS TO RETURN nid, password, name, email, phoneNo, address, vehicleRegNo, vehicleType, balance
+
+CLASS Signup
+--------------
+POST--->>>>
+---------
+1. CHECK IF ACCOUNT FOR LICENSE ALREADY EXISTS
+2. IF DOES NOT EXIST, CREATE A NEW DATABASE ENTRY IN REQUIRED TABLE WITH THE RECEIVED DATA
