@@ -174,12 +174,14 @@ class Recharge(APIView):
         
         
         rechargeInfo = request.data
-        
+        print("===========")
+        print("heha vodox")
+        print("===========")
         offerID = rechargeInfo['offerID']
         gateway = rechargeInfo['gatewayName']
         amount = rechargeInfo['amount']
         date = datetime.today().strftime('%Y-%m-%d')
-        vehicleRegNo = request.POST.get('vehicle')
+        # vehicleRegNo = request.POST.get('vehicle')
         
         # here sql query is needed for entry for a recharge for specific vehicle reg no and increase his main balance/vehicle balance
 
@@ -194,6 +196,9 @@ class Due(APIView):
         # search dues for specific users
         cursor.execute("SELECT * FROM Due")
         dues=cursor.fetchall()
+        print("===========")
+        print(dues)
+        print("===========")
         duesdata = []
         
         for due in dues:
@@ -211,7 +216,7 @@ class Due(APIView):
             
             duesdata.append(row)
         
-        return JsonResponse(duesdata)
+        return JsonResponse(duesdata, safe=False)
         
     
     def post(self, request, format=None):
@@ -223,6 +228,7 @@ class Due(APIView):
         for pay in paylist:
             
             remainderID = pay['reminderID']
+            print(remainderID)
             # here a sql query is needed for searching the dues for specific users and fetch them to get the toll amount
             payamount += gotamountfromql
             remainderIDList.append(remainderID)
@@ -236,8 +242,7 @@ class Due(APIView):
             # delete operation for users
             # got the reminderID from remainderIDList
             # should this true value be in any variable???
-            return JsonResponse(True)
+            return JsonResponse(True, safe=False)
         
         else:
-            return JsonResponse(False)    
-        
+            return JsonResponse(False, safe=False)

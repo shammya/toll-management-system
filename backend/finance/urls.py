@@ -3,7 +3,8 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from finance import views
 
 urlpatterns = [
-    path('', views.Recharge.as_view()),
+    path('recharge/', views.Recharge.as_view()),
+    path('due/', views.Due.as_view()),
     #path('<int:pk>/', views.snippet_detail),
 ]
 
