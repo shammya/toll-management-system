@@ -1,14 +1,12 @@
 from backend.serializers import *
-from user import conf
-
-from django.shortcuts import render, redirect
-from django.http import Http404, HttpResponse, JsonResponse
 from django.db import connection
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from user import conf
 
 
 # class for the home page backend
@@ -49,6 +47,7 @@ class Home(APIView):
 class Login(APIView):
     def post(self, request, format=None):
         print("\n\n\n\n\n\n\nhijibiji")
+        print("123"+str(56))
         # get the login vehicle no and password
         vehicle = request.POST.get('vehicle')
         password = request.POST.get('password')
@@ -59,11 +58,11 @@ class Login(APIView):
         # following (user+pass) exists and figure out
         # if login success or failure
         ###########################################
-        nid1, password1, name1, email1, phoneNo1, address1, vehicleRegNo1, vehicleType1, balance1 = 0
+        # nid1, password1, name1, email1, phoneNo1, address1, vehicleRegNo1, vehicleType1, balance1 = 0
         check_user = True
         if check_user:
             # if user is logged in
-            conf.login(nid1, password1, name1, email1, phoneNo1, address1, vehicleRegNo1, vehicleType1, balance1)
+            # conf.login(nid1, password1, name1, email1, phoneNo1, address1, vehicleRegNo1, vehicleType1, balance1)
             return JsonResponse({
                 "loginSuccess": True,
                 }, safe=False)

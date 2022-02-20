@@ -11,11 +11,16 @@ import {
   TextField,
 } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import { Gateway } from "classes/Objects";
 import User from "layout/User";
 import { useSnackbar } from "notistack";
 import { useState } from "react";
 import { SlidingUpTransition } from "./../tools/tools";
+import { OfferInfo } from "./home";
+
+class Gateway {
+  name: string;
+  src: string;
+}
 
 const imageItem: Gateway[] = [
   {
@@ -85,8 +90,27 @@ export default function Recharge() {
   const [selectedGateway, setSelectedGateway] = useState<Gateway | null>(null);
   return (
     <User title="Recharge">
+      <OfferInfo
+        offers={[
+          {
+            offerType: "Recharge",
+            offerAmount: 30,
+            offerTime: new Date(),
+          },
+          {
+            offerType: "Recharge",
+            offerAmount: 30,
+            offerTime: new Date(),
+          },
+          {
+            offerType: "Recharge",
+            offerAmount: 30,
+            offerTime: new Date(),
+          },
+        ]}
+      />
       <TextField
-        sx={{ marginTop: 10, marginBottom: 10 }}
+        sx={{ marginTop: 2, marginBottom: 2 }}
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">

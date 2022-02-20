@@ -174,9 +174,7 @@ class Recharge(APIView):
         
         
         rechargeInfo = request.data
-        print("===========")
-        print("heha vodox")
-        print("===========")
+        print("Recharge::post()")
         offerID = rechargeInfo['offerID']
         gateway = rechargeInfo['gatewayName']
         amount = rechargeInfo['amount']
