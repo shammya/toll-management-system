@@ -8,12 +8,12 @@ email = ''
 phoneNo = ''
 address = ''
 vehicleRegNo = 'DHA-123'
-vehicleType = ''
+vehicleType = 'car'
 balance = ''
 login = False
 
 def logout():
-    global nid, password, name, email, phoneNo, address, vehicleRegNo, vehicleType, balance
+    global nid, password, name, email, phoneNo, address, vehicleRegNo, vehicleType, balance, login
     nid = ''
     password = ''
     name = ''
@@ -26,7 +26,7 @@ def logout():
     login = False
 
 def login(nid1, password1, name1, email1, phoneNo1, address1, vehicleRegNo1, vehicleType1, balance1):
-    global nid, password, name, email, phoneNo, address, vehicleRegNo, vehicleType, balance
+    global nid, password, name, email, phoneNo, address, vehicleRegNo, vehicleType, balance, login
     nid = nid1
     password = password1
     name = name1

@@ -249,11 +249,12 @@ class RouteSelection(APIView):
         for tolls in tollbooths:
             
             boothID = tolls[0]
-            posX = tolls[2]
-            posY = tolls[3]
+            name = tolls[2]
+            posX = tolls[3]
+            posY = tolls[4]
             location = tolls[1]
             
-            row = {'boothID' : boothID, 'posX' : posX, 'posY' : posY, 'location' : location}
+            row = {'boothID' : boothID, 'boothName' : name, 'posX' : posX, 'posY' : posY, 'location' : location}
             
             tollBoothData.append(row)
             
@@ -277,7 +278,8 @@ class RouteSelection(APIView):
             cursor.execute(sql)
             
             ROW=cursor.fetchall()
-            gotamountfromql=ROW[0]
+            print(ROW)
+            gotamountfromql=ROW[0][0]
             
             
             # here a sql query is needed for searching the tollbooth and tollamount for specific vehicleType get the toll amount
