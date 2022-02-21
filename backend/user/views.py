@@ -99,6 +99,7 @@ class Login(APIView):
             phoneNo1=ROW[0][2]
             address1=ROW[0][3]
             conf.login(nid1, password1, name1, email1, phoneNo1, address1, vehicleRegNo1, vehicleType1, balance1)
+            # print(conf.vehicle)
             # print("check final")
             return JsonResponse({
                 "loginSuccess": True,
