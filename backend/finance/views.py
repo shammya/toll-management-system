@@ -1,20 +1,5 @@
-# from django.shortcuts import render
-# from django.http import HttpResponse
-# from django.db import connection
 
-
-# # Create your views here.
-
-# def index(request):
-#     cursor = connection.cursor()
-#     cursor.execute("SELECT * FROM PaidTollList")
-#     ROW=cursor.fetchall()
-#     #ROW="hello"
-#         #print(object.content)
-#     return HttpResponse(ROW)
-
-
-import datetime
+from datetime import date
 from math import remainder
 from sqlite3 import Cursor, Row
 from django.http import HttpResponse, JsonResponse
@@ -35,74 +20,6 @@ from django.db import connection
 from django.http import Http404
 from rest_framework.views import APIView
 
-
-
-
-    
-# class SnippetList(APIView):
-#     """
-#     List all snippets, or create a new snippet.
-#     """
-#     def get(self, request, format=None):
-#         cursor = connection.cursor()
-#         cursor.execute("SELECT * FROM PaidTollList")
-#         ROW1=cursor.fetchall()
-#         print(ROW1)
-        
-        
-        
-#     #     dic = {}
-#     #     data = []
-#     #     totalcost = 0
-
-#     #     for r in result:
-#     #         month       = r[1]
-#     #         year        = r[2]
-#     #         salary      = r[3]
-#     #         row = {'month': month, 'year': year, 'salary': salary}
-#     #         totalcost = totalcost + int(r[3])
-#     #         data.append(row)
-#     #     data = sorted(data, key=lambda x: (datetime.strptime(x['month'][:3], '%b'), x['year']))
-#     #     dic['data'] = data
-#     #     dic['totalcost'] = totalcost
-#     # # return render(request, 'employee/workh.html', {'login' : conf.login, 'data' : dic, 'msg' : msg, 'user' : conf.getuser()})
-        
-        
-#     #     for r in ROW1:
-            
-#     #         one = r[1]
-#     #         two = r[2]
-#     #         three = r[3]
-            
-#     #         row = {'one' : one, 'two' : two, 'three' : three}
-            
-#     #         data.append(row)        
-        
-        
-        
-        
-        
-        
-#         yourdata = [{"id": 1, "title": "Helllloooooo", "description": "hello here", "completed": True}, {"id": 1, "title": "bla", "description": "hello here", "completed": True}]
-        
-#         serializer = SnippetSerializer(yourdata, many=True).data
-        
-#         print(serializer)
-#         return JsonResponse(serializer, safe=False)
-
-#     def post(self, request, format=None):
-        
-#         serializer = SnippetSerializer(data=request.data)
-    
-#         print(serializer.initial_data)
-#         if serializer.is_valid():
-#             print(serializer.data)
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    
-    
 class Recharge(APIView):
     
     def get(self, request, format=None):
@@ -117,11 +34,12 @@ class Recharge(APIView):
         
         for off in offers:
             if off[1] == 'Recharge':
+                oid = off[0]
                 type = off[1]
                 amount = off[2]
                 time = off[3]
                 
-                row = {'offerType' : type, 'offerAmount' : amount, 'offerTime' : time}
+                row = {'offerID' : oid, 'offerType' : type, 'offerAmount' : amount, 'offerTime' : time}
                 
                 offersdata.append(row)
             
@@ -153,12 +71,6 @@ class Recharge(APIView):
         rechargeserializer = RechargeSerializer(rechargedata, many=True).data
         print(rechargeserializer)
         
-        # return JsonResponse(offerserializer, rechargeserializer, safe=False)
-    
-        # return Response({
-        #     "**EQUITY**":  RechargeSerializer(rechargedata, many=True).data,
-        #     "**FNO**": RechargeSerializer(rechargedata, many=True).data
-        # })
         
         cursor.close()
         return JsonResponse({
@@ -174,7 +86,7 @@ class Recharge(APIView):
         offerID = rechargeInfo['offerID']
         gateway = rechargeInfo['gatewayName']
         amount = rechargeInfo['amount']
-        date = datetime.today().strftime('%Y-%m-%d')
+        date1 = date.today().strftime('%Y-%m-%d')
         # vehicleRegNo = request.POST.get('vehicle')
         
         cursor = connection.cursor()
@@ -185,7 +97,7 @@ class Recharge(APIView):
         rid=rid+1
         
         
-        sql="INSERT INTO Recharge (rechargeID,vehicleRegNo,gatewayName,offerID,amount,date) VALUES ("+str(rid)+",\""+conf.vehicleRegNo+"\",\""+gateway+"\","+str(offerID)+","+str(amount)+",\""+date+"\")"
+        sql="INSERT INTO Recharge (rechargeID,vehicleRegNo,gatewayName,offerID,amount,date) VALUES ("+str(rid)+",\""+conf.vehicleRegNo+"\",\""+gateway+"\","+str(offerID)+","+str(amount)+",\""+date1+"\")"
         cursor.execute(sql)
         
         TotalOfferAmount = amount
@@ -209,8 +121,6 @@ class Recharge(APIView):
         
         sql="UPDATE  Vehicle SET Balance = "+str(newBalance)+" WHERE vehicleRegNo = \""+conf.vehicleRegNo+"\""
         cursor.execute(sql)
-            
-        
         
         # here sql query is needed for entry for a recharge for specific vehicle reg no and increase his main balance/vehicle balance
         cursor.close()
@@ -226,9 +136,6 @@ class Due(APIView):
         sql="SELECT * from Due WHERE vehicleRegNo = \""+conf.vehicleRegNo+"\""
         cursor.execute(sql)
         dues=cursor.fetchall()
-        print("===========")
-        print(dues)
-        print("===========")
         duesdata = []
         
         for due in dues:
@@ -308,9 +215,9 @@ class Due(APIView):
                 ROW=cursor.fetchall()
                 pid=ROW[0][0]
                 pid=pid+1
-                date=datetime.today().strftime('%Y-%m-%d')
+                date1=date.today().strftime('%Y-%m-%d')
 
-                sql="INSERT INTO Payment (paymentID,vehicleRegNo,routeID,amount,date) VALUES ("+str(pid)+",\""+str(conf.vehicleRegNo)+"\",2,"+str(gotamountfromql)+",\""+date+"\")"
+                sql="INSERT INTO Payment (paymentID,vehicleRegNo,routeID,amount,date) VALUES ("+str(pid)+",\""+str(conf.vehicleRegNo)+"\",2,"+str(gotamountfromql)+",\""+date1+"\")"
                 cursor.execute(sql)
                 sql="DELETE FROM Due WHERE remainderID = "+str(remainderID)
                 cursor.execute(sql)
@@ -348,7 +255,7 @@ class RouteSelection(APIView):
             
             row = {'boothID' : boothID, 'posX' : posX, 'posY' : posY, 'location' : location}
             
-            tollBoothData = tollBoothData.append(row)
+            tollBoothData.append(row)
             
         cursor.close()
         return JsonResponse(tollBoothData, safe=False)
