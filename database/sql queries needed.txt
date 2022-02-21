@@ -12,131 +12,6 @@ GET--->>>>
 ---------
 1.QUERY FOR RECHARE TABLE FOR A SPECIFIC VEHICLE OR USER(JAR SAPEKKHE RECHARGE KORA HOCCHE)
 
-
-POST---->>>>
------------
-1.HERE SQL QUERY IS NEEDED FOR ADDING THE RECHARGE AMOUNT IN VEHICLES MAIN BALANCE
-2.SQL QUERY FOR SEARCH FOR SPECIFIC OFFER PERCENTAGE TO ADD BONUS IN RECHARGE PERCENTAGE
-
-
-
-
-CLASS Due
-----------
-
-GET---->>>>>
-------------
-
-
-[CHANGE TOLL BOOTH STATUS TO NAME, IN TOLL BOOTH TABLE]
-
-
-1.HERE A SQL QUERY IS NEEDED FOR GETTING THE BOOTH NAME RELATING TO THE BOOTH id
-2.SQL QUERY IS NEEDED FOR SEARCHING DUES FOR SPECIFIC USERS OR VEHICLES
-
-POST----->>>>>
----------------
-
-1.A SQL QUERY IS NEEDED FOR GETTING THE DUES FOR SPEICFIC USERS(TOTOL DUE)
-2.QUERY IS NEEDED FOR GETTING THE USER BALANCE
-3.QUERY FOR (IF DUE PAYMENT SUCCESS), THE ADD THIS TO PAYMENT OBJECTS
-
-
-CLASS RouteSelected
---------------------
-
-GET------->>>>
--------------
-
-X and Y coordinate need to be added in toll booth table
-
-1.no query here
-
-
-POST--->>>>>>>
-----------------
-
-1.HERE QUERY IS NEEDED FOR SEARCHING THE TOLLBOOTH AMOUNT REGARDING TO THE USERS VEHICLE TYPE 
-
-
-
-CLASS  PaymentRoute
---------------------
-
-
-POST------>>>>>>>>>
---------------------
-
-1.HERE QUERY IS NEEDED FOR SEARCHING THE TOLLBOOTH AMOUNT REGARDING TO THE USERS VEHICLE TYPE(SAME QUERY AS RouteSelected CLASS POST FUNCTION)
-
-2.QUERY FOR GETTING THE TOTAL BALANCE FOR VEHICLE OF THE CURRENT USER 
-
-3.(IF PAYMENT SUCCESS)
-QUERY IS NEEDED FOR MAKING PAYMENT TABLE ENTRY AND ALSO UPDATE THE BALANCE
-
-4.UPDATE (ROUTE ID?? NOT SURE)
-
-
-
-========================
-FOR BACKEND/USER/VIEWS
-========================
-CLASS Home
---------------
-GET--->>>>
----------
-1. A QUERY IS NEEDED TO GET THE LIST OF ALL OFFERS
-
-CLASS Login
---------------
-POST--->>>>
----------
-1. A QUERY IS NEEDED TO CHECK IF THE (USER+PASS) COMBO EXISTS IN DATABASE
-2. NEEDS TO RETURN nid, password, name, email, phoneNo, address, vehicleRegNo, vehicleType, balance
-
-CLASS Signup
---------------
-POST--->>>>
----------
-1. CHECK IF ACCOUNT FOR LICENSE ALREADY EXISTS
-2. IF DOES NOT EXIST, CREATE A NEW DATABASE ENTRY IN REQUIRED TABLE WITH THE RECEIVED DATA
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-========================
-FOR BACKEND/FINANCE/VIEWS
-========================
-
-
-CLASS Recharge
---------------
-
-GET--->>>>
----------
-1.QUERY FOR RECHARE TABLE FOR A SPECIFIC VEHICLE OR USER(JAR SAPEKKHE RECHARGE KORA HOCCHE)
-
 #you have to get the vehicleRegNo in place of 'DHA-123'
 vehicle = 'DHA-123'
 sql="SELECT * FROM Recharge WHERE vehicleRegNo = \'"+vehicle+"\'"
@@ -255,7 +130,11 @@ if(balance >= payamount):
         cursor.execute(sql)
         sql="DELETE FROM Due WHERE remainderID = "+str(remainderID)
         cursor.execute(sql)
+    balance = balance - payamount
+    sql="UPDATE Vehicle SET balance = "+str(balance)+" WHERE vehicleRegNo = \""+vehicleRegNo
+    cursor.execute(sql)
 
+    
 
 
 CLASS RouteSelected
@@ -274,6 +153,13 @@ POST--->>>>>>>
 
 1.HERE QUERY IS NEEDED FOR SEARCHING THE TOLLBOOTH AMOUNT REGARDING TO THE USERS VEHICLE TYPE 
 
+vehicleType="Bus"
+boothID=1
+
+sql="SELECT amount FROM TollAmount WHERE boothID = "+str(boothID)+" AND vehicleType = \""+vehicleType+"\""
+cursor.execute(sql)
+ROW=cursor.fetchall()
+gotamountfromql=ROW[0]
 
 
 CLASS  PaymentRoute
@@ -285,10 +171,73 @@ POST------>>>>>>>>>
 
 1.HERE QUERY IS NEEDED FOR SEARCHING THE TOLLBOOTH AMOUNT REGARDING TO THE USERS VEHICLE TYPE(SAME QUERY AS RouteSelected CLASS POST FUNCTION)
 
-2.QUERY FOR GETTING THE TOTAL BALANCE FOR VEHICLE OF THE CURRENT USER 
+vehicleType="Bus"
+boothID=1
+
+sql="SELECT amount FROM TollAmount WHERE boothID = "+str(boothID)+" AND vehicleType = \""+vehicleType+"\""
+cursor.execute(sql)
+ROW=cursor.fetchall()
+gotamountfromql=ROW[0]
+
+2.QUERY FOR GETTING THE TOTAL BALANCE FOR VEHICLE OF THE CURRENT USER
+#given source destination and vehicleRegNo  insert into route table. Before Checking with balance
+
+sql="SELECT MAX(routeID) FROM Route"
+cursor.execute(sql)
+ROW=cursor.fetchall()
+rid=ROW[0][0]
+rid=rid+1
+source="Buet"
+destination="Gulistan"
+vehicleRegNo="DHA-123"
+date="22-02-2022"
+sql="INSERT INTO Route (routeID,vehicleRegNo,source,destination,date) VALUES ("+str(rid)+",\""+vehicleRegNo+"\",\""+source+"\",\""+destination+"\",\""+date+"\")"
+cursor.execute(sql)
+
+vehicleRegNo = "DHA-123"
+sql="SELECT balance FROM Vehicle WHERE vehicleRegNo = \""+vehicleRegNo+"\""
+cursor.execute(sql)
+ROW=cursor.fetchall()
+balance=ROW[0][0]
 
 3.(IF PAYMENT SUCCESS)
 QUERY IS NEEDED FOR MAKING PAYMENT TABLE ENTRY AND ALSO UPDATE THE BALANCE
+
+vehicleRegNo = "DHA-123"
+date="22-02-2022"
+sql="SELECT MAX(paymentID) FROM Payment"
+cursor.execute(sql)
+ROW=cursor.fetchall()
+pid=ROW[0][0]
+pid=pid+1
+sql="INSERT INTO Payment (paymentID,vehicleRegNo,routeID,amount,date) VALUES ("+str(pid)+",\""+str(vehicleRegNo)+"\",2,"+str(totalTollamount)+",\""+date+"\")"
+cursor.execute(sql)
+
+balance = balance - totalTollamount
+sql="UPDATE Vehicle SET balance = "+str(balance)+" WHERE vehicleRegNo = \""+vehicleRegNo
+cursor.execute(sql)
+
+3.1(IF PAYMENT FAILED)
+#boothID from traversing. routeID from adding 2(as rid). get the vehicle type. 
+
+for toll in selectedTolllist:
+            
+    boothID = toll['boothID']
+    vehicleRegNo = "DHA-123"
+    date="22-02-2022" #get it
+    vehicleType="Bus" #get it
+    sql="SELECT MAX(remainderID) FROM Due"
+    cursor.execute(sql)
+    ROW=cursor.fetchall()
+    remainid=ROW[0][0]
+    remainid=remainid+1
+    sql="SELECT amount FROM TollAmount WHERE boothID = "+str(boothID)+" AND vehicleType = \""+vehicleType+"\""
+    cursor.execute(sql)
+    ROW=cursor.fetchall()
+    gotamountfromql=ROW[0][0]
+    sql="INSERT INTO Due (remainderID,vehicleRegNo,boothID,amount,date,routeID) VALUES("+str(remainid)+",\""+vehicleRegNo+"\","+str(boothID)+","+str(gotamountfromql)+",\""+date+"\","+str(rid)+")"
+    cursor.execute(sql)
+
 
 4.UPDATE (ROUTE ID?? NOT SURE)
 
@@ -302,7 +251,7 @@ CLASS Home
 GET--->>>>
 ---------
 1. A QUERY IS NEEDED TO GET THE LIST OF ALL OFFERS
-
+# may be already implemented in user views.py
 CLASS Login
 --------------
 POST--->>>>
@@ -310,9 +259,71 @@ POST--->>>>
 1. A QUERY IS NEEDED TO CHECK IF THE (USER+PASS) COMBO EXISTS IN DATABASE
 2. NEEDS TO RETURN nid, password, name, email, phoneNo, address, vehicleRegNo, vehicleType, balance
 
+#combine 1 and 2
+
+    vehicle="RX123"  #set to check
+    password="pass1" #set to check
+    vehicleRegNo1=vehicle
+    nid1=""
+    vehicleType1=""
+    balance1=0
+    password1=password
+    name1=""
+    email1=""
+    phoneNo1=""
+    address1=""
+    sql="SELECT OwnerNID, vehicleType, balance FROM Vehicle WHERE vehicleRegNo = \""+vehicle+"\""
+    cursor.execute(sql)
+    ROW=cursor.fetchall()
+    
+    if len(ROW) == 0 :
+        print('')
+        #failed and return
+    else: 
+        nid1=ROW[0][0]
+        vehicleType1=ROW[0][1]
+        balance1=ROW[0][2]
+    
+    sql="SELECT name, email, phoneNo, address FROM User WHERE NID = \""+nid1+"\" AND password = \""+password+"\""
+    cursor.execute(sql)
+    ROW=cursor.fetchall()
+    
+    if len(ROW) == 0 :
+        print('')
+        #failed and return
+    else:
+        name1=ROW[0][0]
+        email1=ROW[0][1]
+        phoneNo1=ROW[0][2]
+        address1=ROW[0][3]
+        #success
+
 CLASS Signup
 --------------
 POST--->>>>
 ---------
 1. CHECK IF ACCOUNT FOR LICENSE ALREADY EXISTS
 2. IF DOES NOT EXIST, CREATE A NEW DATABASE ENTRY IN REQUIRED TABLE WITH THE RECEIVED DATA
+
+license="CTG-123"
+nid="11110000"
+password="fhaj"
+name="mehedi"
+email="kk@kk.com"
+phoneno="01888888888"
+address="dhaka"
+vehicletype="Bus"
+
+sql="SELECT * FROM Vehicle WHERE vehicleRegNo = \""+license+"\""
+cursor.execute(sql)
+ROW=cursor.fetchall()
+
+if len(ROW) != 0 :
+    print('already exist')
+    #failed and return
+else:
+    print('create new')
+    sql="INSERT INTO User (NID,password,name,email,phoneNo,address) VALUES (\""+nid+"\",\""+password+"\",\""+name+"\",\""+email+"\",\""+phoneno+"\",\""+address+"\")"
+    cursor.execute(sql)
+    sql="INSERT INTO Vehicle (vehicleRegNo,ownerNID,vehicleType,balance) VALUES (\""+license+"\",\""+nid+"\",\""+vehicletype+"\",0)"
+    cursor.execute(sql)
