@@ -15,22 +15,24 @@ class Home(APIView):
         # if the user is logged in then
         if conf.vehicleRegNo:
             # get data from db cursor
-            # cursor = connection.cursor()
-            # cursor.execute("SELECT * FROM Offer")
-            # offers=cursor.fetchall()
+            cursor = connection.cursor()
+            cursor.execute("SELECT * FROM Offer")
+            offers=cursor.fetchall()
+            cursor.close()
             # convert the data from db to a py dictionary
             offersdata = []
-            # for off in offers:
-            #     type = off[1]
-            #     amount = off[2]
-            #     time = off[3]
+            for off in offers:
+                offid = off[0]
+                type = off[1]
+                amount = off[2]
+                time = off[3]
 
-            #     row = {'offerType' : type, 'offerAmount' : amount, 'offerTime' : time}
+                row = {'offerID' : offid, 'offerType' : type, 'offerAmount' : amount, 'offerTime' : time}
 
-            #     offersdata.append(row)
+                offersdata.append(row)
             # serialize the dictionary
             serializedOffers =  OfferSerializer(offersdata, many=True).data
-            print(serializedOffers)
+            # print(serializedOffers)
             # return the dictionary as json response
             return JsonResponse({
                 "userdata" : {"username" : conf.name, "email" : conf.email, "balance" : conf.balance},
@@ -46,59 +48,99 @@ class Home(APIView):
 # class for login backend
 class Login(APIView):
     def post(self, request, format=None):
-        print("\n\n\n\n\n\n\nhijibiji")
         print("123"+str(56))
         # get the login vehicle no and password
-        vehicle = request.POST.get('vehicle')
-        password = request.POST.get('password')
+        vehicle = request.data['vehicle']
+        password = request.data['password']
         print(vehicle, password)
 
-        ###########################################
-        # create a dynamic query here to check if the 
-        # following (user+pass) exists and figure out
-        # if login success or failure
-        ###########################################
-        # nid1, password1, name1, email1, phoneNo1, address1, vehicleRegNo1, vehicleType1, balance1 = 0
-        check_user = True
-        if check_user:
-            # if user is logged in
-            # conf.login(nid1, password1, name1, email1, phoneNo1, address1, vehicleRegNo1, vehicleType1, balance1)
-            return JsonResponse({
-                "loginSuccess": True,
-                }, safe=False)
-        else:
+        vehicleRegNo1=vehicle
+        nid1=""
+        vehicleType1=""
+        balance1=0
+        password1=password
+        name1=""
+        email1=""
+        phoneNo1=""
+        address1=""
+        sql="SELECT OwnerNID, vehicleType, balance FROM Vehicle WHERE vehicleRegNo = \""+vehicle+"\""
+        # print("check in")
+        
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        ROW=cursor.fetchall()
+        cursor.close()
+        # print("data found")
+        
+        if len(ROW) == 0 :
             return JsonResponse({
                 "loginSuccess": False,
                 "errorMsg" : "login failed, retry to login",
+                }, safe=False)
+        else: 
+            nid1=ROW[0][0]
+            vehicleType1=ROW[0][1]
+            balance1=ROW[0][2]
+        
+        sql="SELECT name, email, phoneNo, address FROM User WHERE NID = \""+nid1+"\" AND password = \""+password+"\""
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        ROW=cursor.fetchall()
+        cursor.close()
+
+        if len(ROW) == 0 :
+            return JsonResponse({
+                "loginSuccess": False,
+                "errorMsg" : "login failed, retry to login",
+                }, safe=False)
+        else:
+            name1=ROW[0][0]
+            email1=ROW[0][1]
+            phoneNo1=ROW[0][2]
+            address1=ROW[0][3]
+            conf.login(nid1, password1, name1, email1, phoneNo1, address1, vehicleRegNo1, vehicleType1, balance1)
+            # print("check final")
+            return JsonResponse({
+                "loginSuccess": True,
                 }, safe=False)
 
 # class for login backend
 class Signup(APIView):
     def post(self, request, format=None):
         # get the login vehicle no and password
-        mobileno = request.POST.get('mobileno')
-        fname = request.POST.get('fname')
-        lname = request.POST.get('lname')
-        license = request.POST.get('license')
-        vehicletype = request.POST.get('vehicletype')
-        password = request.POST.get('password')
+        license = request.data['license']
+        nid = request.data['nid']
+        password = request.data['password']
+        fname = request.data['fname']
+        lname = request.data['lname']
+        name = fname + " " + lname
+        email = request.data['email']
+        mobileno = request.data['mobileno']
+        address = request.data['address']
+        vehicletype = request.data['vehicletype']
 
         ###########################################
         # create a dynamic query here to check if the 
         # following (user+pass) exists
         ###########################################
-        
-        alreadyExists = False
-        if alreadyExists:
+        sql="SELECT * FROM Vehicle WHERE vehicleRegNo = \""+license+"\""
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        ROW=cursor.fetchall()
+        cursor.close()
+
+        if len(ROW) != 0 :
             return JsonResponse({
                 "signupSuccess": False,
                 "errorMsg" : "signup failed, duplicate name",
                 }, safe=False)
         else:
-            ###########################################
-            # create a query here to save the 
-            # following (user+pass) to db
-            ###########################################
+            sql="INSERT INTO User (NID,password,name,email,phoneNo,address) VALUES (\""+nid+"\",\""+password+"\",\""+name+"\",\""+email+"\",\""+mobileno+"\",\""+address+"\")"
+            cursor = connection.cursor()
+            cursor.execute(sql)
+            sql="INSERT INTO Vehicle (vehicleRegNo,ownerNID,vehicleType,balance) VALUES (\""+license+"\",\""+nid+"\",\""+vehicletype+"\",0)"
+            cursor.execute(sql)
+            cursor.close()
             return JsonResponse({
                 "signupSuccess": True,
                 })
