@@ -159,6 +159,8 @@ class Recharge(APIView):
         #     "**EQUITY**":  RechargeSerializer(rechargedata, many=True).data,
         #     "**FNO**": RechargeSerializer(rechargedata, many=True).data
         # })
+        
+        cursor.close()
         return JsonResponse({
             "rechargeHistory": rechargeserializer,
             "offers": offerserializer
@@ -211,7 +213,7 @@ class Recharge(APIView):
         
         
         # here sql query is needed for entry for a recharge for specific vehicle reg no and increase his main balance/vehicle balance
-
+        cursor.close()
         return JsonResponse(True, safe = False)
     
 class Due(APIView):
@@ -247,6 +249,8 @@ class Due(APIView):
             row = {'reminderId' : remainderID, 'vehicleRegNo' : vehicleNo, 'boothName' : boothname, 'dueAmount' : amount, 'date' : date}
             
             duesdata.append(row)
+            
+        cursor.close()
         
         return JsonResponse(duesdata, safe=False)
         
@@ -312,10 +316,12 @@ class Due(APIView):
                 cursor.execute(sql)
             
             
-            
+            cursor.close()
             return JsonResponse(True, safe=False)
         
         else:
+            
+            cursor.close()
             return JsonResponse(False, safe=False)
         
         
@@ -344,13 +350,13 @@ class RouteSelection(APIView):
             
             tollBoothData = tollBoothData.append(row)
             
+        cursor.close()
         return JsonResponse(tollBoothData, safe=False)
     
     def post(self, request, format = None):
         
         selectedTolllist = request.data
         cursor = connection.cursor()
-        cursor.execute("SELECT vehicleType FROM Vehicle w")
         
         totalTollamount = 0
         gotamountfromql = 0
@@ -359,7 +365,12 @@ class RouteSelection(APIView):
             
             boothID = toll['boothID']
             
+            sql="SELECT amount FROM TollAmount WHERE boothID = "+str(boothID)+" AND vehicleType = \""+conf.vehicleType+"\""
             
+            cursor.execute(sql)
+            
+            ROW=cursor.fetchall()
+            gotamountfromql=ROW[0]
             
             
             # here a sql query is needed for searching the tollbooth and tollamount for specific vehicleType get the toll amount
@@ -368,6 +379,8 @@ class RouteSelection(APIView):
         row = {'tollAmount' : totalTollamount}
         
         tollAmount.append(row)
+        
+        cursor.close()
         
         return JsonResponse(tollAmount, safe = False)
     
@@ -378,14 +391,29 @@ class PaymentRoute(APIView):
         
         selectedTolllist = request.data
         
+        
+        cursor = connection.cursor()
+
         totalTollamount = 0
         gotamountfromql = 0
         tollAmount = []
         selectedTolls = []
+        
+        
+        
         for toll in selectedTolllist:
             
             boothID = toll['boothID']
             selectedTolls.append(boothID)
+            
+            sql="SELECT amount FROM TollAmount WHERE boothID = "+str(boothID)+" AND vehicleType = \""+conf.vehicleType+"\""
+            
+            cursor.execute(sql)
+            
+            ROW=cursor.fetchall()
+            gotamountfromql=ROW[0]
+            
+            
             # here a sql query is needed for searching the tollbooth and tollamount for specific vehicleType get the toll amount 
             totalTollamount += gotamountfromql
             
@@ -393,19 +421,50 @@ class PaymentRoute(APIView):
         
         # here a query is needed to check the balance for user againnts the total toll amount
         
-        balance = 0
+        sql="SELECT balance FROM Vehicle WHERE vehicleRegNo = \""+conf.vehicleRegNo+"\""
+        
+        cursor.execute(sql)
+        ROW=cursor.fetchall()
+        balance=ROW[0][0]
         
         if(balance >= totalTollamount):
             # here query is needed to make entry in the payment table for the seleced booths
             # the list can be found from the selectedTolls.
             
-            for id in selectedTolls:
-                pass
+            source  = str(selectedTolls[0])
+            destination = str(selectedTolls[len(selectedTolls) - 1])
             
             
+            
+            sql="SELECT MAX(routeID) FROM Route"
+            cursor.execute(sql)
+            ROW=cursor.fetchall()
+            rid=ROW[0][0]
+            rid=rid+1
+
+            date=datetime.today().strftime('%Y-%m-%d')
+
+            sql="INSERT INTO Route (routeID,vehicleRegNo,source,destination,date) VALUES ("+str(rid)+",\""+conf.vehicleRegNo+"\",\""+source+"\",\""+destination+"\",\""+date+"\")"
+            cursor.execute(sql)
+            
+            
+            sql="SELECT MAX(paymentID) FROM Payment"
+            cursor.execute(sql)
+            ROW=cursor.fetchall()
+            pid=ROW[0][0]
+            pid=pid+1
+            sql="INSERT INTO Payment (paymentID,vehicleRegNo,routeID,amount,date) VALUES ("+str(pid)+",\""+str(conf.vehicleRegNo)+"\",2,"+str(totalTollamount)+",\""+date+"\")"
+            cursor.execute(sql)
+
+            balance = balance - totalTollamount
+            sql="UPDATE Vehicle SET balance = "+str(balance)+" WHERE vehicleRegNo = \""+conf.vehicleRegNo
+            cursor.execute(sql)
+                 
+            cursor.close()
             return JsonResponse(True, safe = False)
         
         else:
             
+            cursor.close()
             return JsonResponse(False, safe = False)
     
