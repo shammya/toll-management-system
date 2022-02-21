@@ -7,6 +7,7 @@ urlpatterns = [
     path('recharge/', views.Recharge.as_view()),
     path('due/', views.Due.as_view()),
     path('route/', views.RouteSelection.as_view()),
+    path('payment/', views.PaymentRoute.as_view()),
     #path('<int:pk>/', views.snippet_detail),
 ]
 

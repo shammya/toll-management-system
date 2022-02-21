@@ -102,7 +102,7 @@ class Recharge(APIView):
         
         TotalOfferAmount = amount
         
-        if(offerID != ''):
+        if(offerID != 'null'):
             
             sql="SELECT offerAmount FROM Offer WHERE offerID = "+str(offerID)
             cursor.execute(sql)
@@ -124,6 +124,7 @@ class Recharge(APIView):
         
         # here sql query is needed for entry for a recharge for specific vehicle reg no and increase his main balance/vehicle balance
         cursor.close()
+        conf.balance = newBalance
         return JsonResponse(True, safe = False)
     
 class Due(APIView):
@@ -222,8 +223,11 @@ class Due(APIView):
                 sql="DELETE FROM Due WHERE remainderID = "+str(remainderID)
                 cursor.execute(sql)
             
-            
+            balance -= payamount
+            sql="UPDATE  Vehicle SET Balance = "+str(balance)+" WHERE vehicleRegNo = \""+conf.vehicleRegNo+"\""
+            cursor.execute(sql)
             cursor.close()
+            conf.balance = balance
             return JsonResponse(True, safe=False)
         
         else:
@@ -305,7 +309,6 @@ class PaymentRoute(APIView):
 
         totalTollamount = 0
         gotamountfromql = 0
-        tollAmount = []
         selectedTolls = []
         
         
@@ -320,7 +323,7 @@ class PaymentRoute(APIView):
             cursor.execute(sql)
             
             ROW=cursor.fetchall()
-            gotamountfromql=ROW[0]
+            gotamountfromql=ROW[0][0]
             
             
             # here a sql query is needed for searching the tollbooth and tollamount for specific vehicleType get the toll amount 
@@ -335,6 +338,7 @@ class PaymentRoute(APIView):
         cursor.execute(sql)
         ROW=cursor.fetchall()
         balance=ROW[0][0]
+        print("my current balance : ", balance)
         
         if(balance >= totalTollamount):
             # here query is needed to make entry in the payment table for the seleced booths
@@ -351,9 +355,9 @@ class PaymentRoute(APIView):
             rid=ROW[0][0]
             rid=rid+1
 
-            date=datetime.today().strftime('%Y-%m-%d')
+            date1=date.today().strftime('%Y-%m-%d')
 
-            sql="INSERT INTO Route (routeID,vehicleRegNo,source,destination,date) VALUES ("+str(rid)+",\""+conf.vehicleRegNo+"\",\""+source+"\",\""+destination+"\",\""+date+"\")"
+            sql="INSERT INTO Route (routeID,vehicleRegNo,source,destination,date) VALUES ("+str(rid)+",\""+conf.vehicleRegNo+"\",\""+source+"\",\""+destination+"\",\""+date1+"\")"
             cursor.execute(sql)
             
             
@@ -362,14 +366,16 @@ class PaymentRoute(APIView):
             ROW=cursor.fetchall()
             pid=ROW[0][0]
             pid=pid+1
-            sql="INSERT INTO Payment (paymentID,vehicleRegNo,routeID,amount,date) VALUES ("+str(pid)+",\""+str(conf.vehicleRegNo)+"\",2,"+str(totalTollamount)+",\""+date+"\")"
+            sql="INSERT INTO Payment (paymentID,vehicleRegNo,routeID,amount,date) VALUES ("+str(pid)+",\""+str(conf.vehicleRegNo)+"\",2,"+str(totalTollamount)+",\""+date1+"\")"
             cursor.execute(sql)
+            print("total amount to be paid: ", totalTollamount)
 
             balance = balance - totalTollamount
-            sql="UPDATE Vehicle SET balance = "+str(balance)+" WHERE vehicleRegNo = \""+conf.vehicleRegNo
+            sql="UPDATE Vehicle SET balance = "+str(balance)+" WHERE vehicleRegNo = \""+conf.vehicleRegNo + "\""
             cursor.execute(sql)
                  
             cursor.close()
+            conf.balance = balance
             return JsonResponse(True, safe = False)
         
         else:
