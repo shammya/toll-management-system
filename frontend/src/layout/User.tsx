@@ -12,9 +12,11 @@ const theme = createTheme();
 export default function User({
   title,
   children,
+  signOut,
 }: {
   title: string;
   children: any;
+  signOut?: () => void;
 }) {
   const history = useHistory();
   // console.log(history);
@@ -44,11 +46,21 @@ export default function User({
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {title}
           </Typography>
-          <div>
-            <Button color="secondary" variant="contained">
-              Sign out
-            </Button>
-          </div>
+          {title != "Home" ? (
+            <div>
+              <Button
+                color="secondary"
+                variant="contained"
+                onClick={(event) => {
+                  signOut ? signOut() : "";
+                }}
+              >
+                Sign out
+              </Button>
+            </div>
+          ) : (
+            <></>
+          )}
         </Toolbar>
       </AppBar>
       <Container component="main" maxWidth="xs">

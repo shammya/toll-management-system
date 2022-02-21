@@ -6,6 +6,7 @@ import SignIn from "./view/auth/sign-in";
 import Recharge from "./view/recharge";
 import Dues from "./view/dues";
 import BrowseRoute from "./view/browse-route";
+import SignUp from "./view/auth/sign-up";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/home" component={Home} />
         <Route path="/recharge" component={Recharge} />
         <Route path="/browse" component={BrowseRoute} />
+        <Route path="/signup" component={SignUp} />
         <Route path="/dues" component={Dues} />
         <Redirect from="/" to="/home" />
       </Switch>

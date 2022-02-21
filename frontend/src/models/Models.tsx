@@ -47,3 +47,27 @@ export class Login_Post {
   vehicle: string;
   password: string;
 }
+
+export class Signup_Post {
+  license: string;
+  nid: string;
+  password: string;
+  fname: string;
+  lname: string;
+  email: string;
+  mobileno: string;
+  address: string;
+  vehicletype: string;
+  constructor() {
+    this.license = "";
+    this.license = "";
+    this.nid = "";
+    this.password = "";
+    this.fname = "";
+    this.lname = "";
+    this.email = "";
+    this.mobileno = "";
+    this.address = "";
+    this.vehicletype = "";
+  }
+}

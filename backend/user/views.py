@@ -63,7 +63,7 @@ class Login(APIView):
         email1=""
         phoneNo1=""
         address1=""
-        sql="SELECT OwnerNID, vehicleType, balance FROM Vehicle WHERE vehicleRegNo = \""+vehicle+"\""
+        sql="SELECT OwnerNID, vehicleType, balance FROM Vehicle WHERE vehicleRegNo = \""+str(vehicle)+"\""
         # print("check in")
         
         cursor = connection.cursor()

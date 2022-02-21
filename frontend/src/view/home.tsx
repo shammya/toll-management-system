@@ -6,9 +6,11 @@ import Typography from "@mui/material/Typography";
 import axios from "axios";
 import { GLOBAL } from "Configure";
 import { Home_Get, Offer } from "models/Models";
+import { useSnackbar } from "notistack";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { stringAvatar } from "tools/tools";
 import User from "../layout/User";
 
 const theme = createTheme();
@@ -28,7 +30,7 @@ const pages = [
   },
 ];
 
-export function OfferInfo({ offers }: { offers: Offer[] }) {
+export function OfferInfo({ offers = [] }: { offers: Offer[] | undefined }) {
   return (
     <Grid container spacing={1} sx={{ marginTop: 2, marginBottom: 2 }}>
       {offers.map((offer, idx) => (
@@ -52,16 +54,27 @@ export function OfferInfo({ offers }: { offers: Offer[] }) {
 
 export default function Home() {
   const history = useHistory();
-  const [userInfo, setUserInfo] = useState<Home_Get>();
+  const { enqueueSnackbar } = useSnackbar();
+  const [homeInfo, setHomeInfo] = useState<Home_Get>();
   useEffect(() => {
     axios.get(GLOBAL.HOST).then((response) => {
       console.log(response);
-      setUserInfo(response.data);
+      setHomeInfo(response.data);
     });
   }, []);
 
+  function signOut() {
+    axios.post(GLOBAL.HOST + "/logout/").then((response) => {
+      console.log(response);
+      if (response.data.logoutSuccess) {
+        history.push({ pathname: "/home" });
+        enqueueSnackbar("Successfully log out", { variant: "success" });
+      }
+    });
+  }
+
   return (
-    <User title="Home">
+    <User title="Home" signOut={signOut}>
       <Grid
         container
         padding={2}
@@ -73,13 +86,19 @@ export default function Home() {
           <Grid container spacing={2}>
             <Grid item container>
               <Chip
-                label={userInfo?.userdata?.username}
+                label={homeInfo?.userdata?.email}
                 sx={{ width: "100%", textAlign: "center", fontSize: 30 }}
               />
             </Grid>
             <Grid item container>
               <Chip
-                label={"Balance" + userInfo?.userdata?.balance}
+                label={homeInfo?.userdata?.username}
+                sx={{ width: "100%", textAlign: "center", fontSize: 30 }}
+              />
+            </Grid>
+            <Grid item container>
+              <Chip
+                label={"Balance " + homeInfo?.userdata?.balance}
                 sx={{ width: "100%", textAlign: "center", fontSize: 20 }}
               />
             </Grid>
@@ -87,30 +106,14 @@ export default function Home() {
         </Grid>
         <Grid item xs={4} justifyContent="center">
           <Avatar
-            src={require("assets/img/user.jpg")}
+            {...stringAvatar(
+              homeInfo?.userdata?.username ? homeInfo?.userdata?.username : ""
+            )}
             sx={{ width: 100, height: 100 }}
           />
         </Grid>
       </Grid>
-      <OfferInfo
-        offers={[
-          {
-            offerType: "Recharge",
-            offerAmount: 30,
-            offerTime: new Date(),
-          },
-          {
-            offerType: "Recharge",
-            offerAmount: 30,
-            offerTime: new Date(),
-          },
-          {
-            offerType: "Recharge",
-            offerAmount: 30,
-            offerTime: new Date(),
-          },
-        ]}
-      />
+      <OfferInfo offers={homeInfo?.offers} />
       <Grid container spacing={2}>
         {pages.map((page) => (
           <Grid item xs={6}>

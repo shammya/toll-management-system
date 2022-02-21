@@ -15,7 +15,7 @@ ReactDOM.render(
         type: "light"
       },
     })}>
-      <SnackbarProvider>
+      <SnackbarProvider maxSnack={6}>
         <App />
       </SnackbarProvider>
     </MuiThemeProvider>

@@ -11,6 +11,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import axios from "axios";
 import { GLOBAL } from "Configure";
+import { useSnackbar } from "notistack";
 import * as React from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { Login_Post } from "./../../models/Models";
@@ -18,6 +19,7 @@ import { Login_Post } from "./../../models/Models";
 const theme = createTheme();
 
 export default function SignIn() {
+  const { enqueueSnackbar } = useSnackbar();
   const history = useHistory();
   const [loginInfo, setLoginInfo] = React.useState<Login_Post>({
     vehicle: "",
@@ -25,26 +27,29 @@ export default function SignIn() {
   });
   const handleSubmit = (event) => {
     console.log(loginInfo);
+    let error = false;
+    if (loginInfo.vehicle == "") {
+      enqueueSnackbar("Please enter a vehicle number", { variant: "error" });
+      error = true;
+    }
+    if (loginInfo.password == "") {
+      enqueueSnackbar("Please enter a password", { variant: "error" });
+      error = true;
+    }
+    if (error) return;
     axios
-      .post(GLOBAL.HOST + `/login`, { vehicle: 123, password: "12345" })
-      .then((request) => {
-        // if (response.data.stringValue) {
-        //   setMessage(response.data.stringValue);
-        //   setOpen(true);
-        //   console.log("don't match");
-        // } else if (response.data.token) {
-        //   console.log(username);
-        //   localStorage.setItem("user", JSON.stringify(response.data));
-        //   console.log(AuthService.getCurrentUser());
-        //   if (response.data.accountType === "Admin") {
-        //     history.push({ pathname: "/admin" });
-        //   } else {
-        //     history.push({ pathname: "/home" });
-        //   }
-        // }
-        console.log(request);
-        if (request.data) {
+      .post(GLOBAL.HOST + `/login/`, {
+        vehicle: loginInfo.vehicle,
+        password: loginInfo.password,
+      })
+      .then((response) => {
+        console.log(response);
+        if (response.data.loginSuccess) {
           history.push({ pathname: "/home" });
+        } else {
+          enqueueSnackbar("Vehicle no or password mismatch!! Try again", {
+            variant: "error",
+          });
         }
       });
   };
@@ -109,7 +114,7 @@ export default function SignIn() {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/signup" variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>

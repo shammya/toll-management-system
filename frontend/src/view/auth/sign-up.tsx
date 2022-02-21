@@ -10,31 +10,108 @@ import Link from "@mui/material/Link";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import axios from "axios";
+import { GLOBAL } from "Configure";
+import { useSnackbar } from "notistack";
 import * as React from "react";
 import { useState } from "react";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { Signup_Post } from "./../../models/Models";
 
 const theme = createTheme();
 
 export default function SignUp() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    // eslint-disable-next-line no-console
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
+  const { enqueueSnackbar } = useSnackbar();
+  const history = useHistory();
+  const [signUpInfo, setSignUpInfo] = useState<Signup_Post>(new Signup_Post());
+  const [vehicleType, setVehicleType] = useState("0");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = (event) => {
+    console.log(signUpInfo);
+    let error = false;
+    if (signUpInfo.license == "") {
+      enqueueSnackbar("Please enter a vehicle number", {
+        variant: "error",
+      });
+      error = true;
+    }
+    if (signUpInfo.vehicletype == "") {
+      enqueueSnackbar("Please enter a vehicle type", {
+        variant: "error",
+      });
+      error = true;
+    }
+    if (signUpInfo.nid == "") {
+      enqueueSnackbar("Please enter NID no", {
+        variant: "error",
+      });
+      error = true;
+    }
+    if (signUpInfo.fname == "") {
+      enqueueSnackbar("Please enter first name", {
+        variant: "error",
+      });
+      error = true;
+    }
+    if (signUpInfo.lname == "") {
+      enqueueSnackbar("Please enter last name", {
+        variant: "error",
+      });
+      error = true;
+    }
+    if (signUpInfo.mobileno == "") {
+      enqueueSnackbar("Please enter a mobile no", {
+        variant: "error",
+      });
+      error = true;
+    }
+    if (signUpInfo.email == "") {
+      enqueueSnackbar("Please enter an email", {
+        variant: "error",
+      });
+      error = true;
+    }
+    if (signUpInfo.address == "") {
+      enqueueSnackbar("Please enter an address", {
+        variant: "error",
+      });
+      error = true;
+    }
+    if (signUpInfo.password == "") {
+      enqueueSnackbar("Please enter a password (again)", {
+        variant: "error",
+      });
+      error = true;
+    }
+    if (password == "") {
+      enqueueSnackbar("Please enter a password", {
+        variant: "error",
+      });
+      error = true;
+    }
+    if (
+      password != "" &&
+      signUpInfo.password != "" &&
+      password != signUpInfo.password
+    ) {
+      enqueueSnackbar("Password mismatch!!!", {
+        variant: "error",
+      });
+      error = true;
+    }
+    if (error) return;
+    axios.post(GLOBAL.HOST + `/signup/`, signUpInfo).then((response) => {
+      console.log(response);
+      if (response.data.signupSuccess) {
+        history.push({ pathname: "/home" });
+      } else {
+        enqueueSnackbar("You have already an account. Please sign in", {
+          variant: "error",
+        });
+      }
     });
   };
-
-  const [vehicleType, setVehicleType] = useState("0");
-  function handleVehicleTypeChange(event) {
-    setVehicleType(event.target.value);
-  }
-
-  const [dob, setDob] = useState(new Date());
-  function handleDobChange(newValue) {
-    setDob(newValue);
-  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -55,42 +132,7 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Sign Up
           </Typography>
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
-            sx={{ mt: 1 }}
-          >
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="mobile-no"
-              label="Mobile no"
-              name="mobile-no"
-              autoComplete="mobile-no"
-              autoFocus
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="first-name"
-              label="First name"
-              name="first-name"
-              autoComplete="first-name"
-              autoFocus
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="last-name"
-              label="Last name"
-              name="last-name"
-              autoComplete="last-name"
-              autoFocus
-            />
+          <Box sx={{ mt: 1 }}>
             <TextField
               margin="normal"
               required
@@ -100,51 +142,101 @@ export default function SignUp() {
               name="vehicle-no"
               autoComplete="vehicle-no"
               autoFocus
+              onBlur={(event) =>
+                setSignUpInfo({ ...signUpInfo, license: event.target.value })
+              }
             />
             <FormControl margin="normal" required fullWidth>
               <InputLabel>Vehicle type</InputLabel>
               <Select
-                value={vehicleType}
+                value={signUpInfo.vehicletype}
                 label="Vehicle type"
-                onChange={handleVehicleTypeChange}
+                onChange={(event) =>
+                  setSignUpInfo({
+                    ...signUpInfo,
+                    vehicletype: event.target.value,
+                  })
+                }
               >
-                <MenuItem value="0">-- Select type</MenuItem>
-                <MenuItem value="Car">Car</MenuItem>
-                <MenuItem value="Truck">Truck</MenuItem>
-                <MenuItem value="Bus">Bus</MenuItem>
+                <MenuItem value="">-- Select type</MenuItem>
+                <MenuItem value="car">Car</MenuItem>
+                <MenuItem value="bus">Bus</MenuItem>
+                <MenuItem value="motorbike">Motorbike</MenuItem>
               </Select>
             </FormControl>
             <TextField
               margin="normal"
               required
               fullWidth
-              name="license-no"
-              label="License no"
-              id="license-no"
-              autoComplete="license-no"
+              id="nid-no"
+              label="NID card no"
+              name="nid-no"
+              autoComplete="nid-no"
+              onBlur={(event) =>
+                setSignUpInfo({ ...signUpInfo, nid: event.target.value })
+              }
             />
             <TextField
               margin="normal"
               required
               fullWidth
-              name="occupation"
-              label="Occupation"
-              id="occupation"
-              autoComplete="occupation"
+              id="first-name"
+              label="First name"
+              name="first-name"
+              autoComplete="first-name"
+              onBlur={(event) =>
+                setSignUpInfo({ ...signUpInfo, fname: event.target.value })
+              }
             />
-            {/* <FormControl required margin="normal" fullWidth>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <Stack spacing={3}>
-                  <MobileDatePicker
-                    label="Date mobile"
-                    inputFormat="dd/MM/yyyy"
-                    value={dob}
-                    onChange={handleDobChange}
-                    renderInput={(params) => <TextField {...params} />}
-                  />
-                </Stack>
-              </LocalizationProvider>
-            </FormControl> */}
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="last-name"
+              label="Last name"
+              name="last-name"
+              autoComplete="last-name"
+              onBlur={(event) =>
+                setSignUpInfo({ ...signUpInfo, lname: event.target.value })
+              }
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="mobile-no"
+              label="Mobile no"
+              name="mobile-no"
+              autoComplete="mobile-no"
+              onBlur={(event) =>
+                setSignUpInfo({ ...signUpInfo, mobileno: event.target.value })
+              }
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email"
+              name="email"
+              autoComplete="email"
+              type="email"
+              onBlur={(event) =>
+                setSignUpInfo({ ...signUpInfo, email: event.target.value })
+              }
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="address"
+              label="Address"
+              id="address"
+              autoComplete="address"
+              onBlur={(event) =>
+                setSignUpInfo({ ...signUpInfo, address: event.target.value })
+              }
+            />
             <TextField
               margin="normal"
               required
@@ -153,6 +245,7 @@ export default function SignUp() {
               label="Password"
               type="password"
               id="password"
+              onBlur={(event) => setPassword(event.target.value)}
             />
             <TextField
               margin="normal"
@@ -162,18 +255,21 @@ export default function SignUp() {
               label="Password (again)"
               type="password"
               id="password-again"
+              onBlur={(event) =>
+                setSignUpInfo({ ...signUpInfo, password: event.target.value })
+              }
             />
             <Button
-              type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              onClick={handleSubmit}
             >
               Sign Up
             </Button>
             <Grid container justifyContent="center">
               <Grid item textAlign="center">
-                <Link href="#" variant="body2">
+                <Link href="/signin" variant="body2">
                   {"Already have an account? Sign In"}
                 </Link>
               </Grid>
