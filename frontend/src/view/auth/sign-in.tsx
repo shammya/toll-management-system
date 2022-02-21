@@ -13,17 +13,18 @@ import axios from "axios";
 import { GLOBAL } from "Configure";
 import * as React from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { Login_Post } from "./../../models/Models";
 
 const theme = createTheme();
 
 export default function SignIn() {
   const history = useHistory();
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    // eslint-disable-next-line no-console
-    // vehicle = request.POST.get('vehicle')
-    // password = request.POST.get('password')
+  const [loginInfo, setLoginInfo] = React.useState<Login_Post>({
+    vehicle: "",
+    password: "",
+  });
+  const handleSubmit = (event) => {
+    console.log(loginInfo);
     axios
       .post(GLOBAL.HOST + `/login`, { vehicle: 123, password: "12345" })
       .then((request) => {
@@ -66,21 +67,19 @@ export default function SignIn() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
-            sx={{ mt: 1 }}
-          >
+          <Box sx={{ mt: 1 }}>
             <TextField
               margin="normal"
               required
               fullWidth
-              id="mobile-no"
-              label="Mobile no"
-              name="mobile-no"
-              autoComplete="mobile-no"
+              id="Vehicle-no"
+              label="Vehicle no"
+              name="Vehicle-no"
+              autoComplete="Vehicle-no"
               autoFocus
+              onBlur={(event) => {
+                setLoginInfo({ ...loginInfo, vehicle: event.target.value });
+              }}
             />
             <TextField
               margin="normal"
@@ -91,16 +90,15 @@ export default function SignIn() {
               type="password"
               id="password"
               autoComplete="current-password"
+              onBlur={(event) => {
+                setLoginInfo({ ...loginInfo, password: event.target.value });
+              }}
             />
-            {/* <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            /> */}
             <Button
-              type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              onClick={handleSubmit}
             >
               Sign In
             </Button>

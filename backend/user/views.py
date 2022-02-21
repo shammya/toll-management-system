@@ -1,14 +1,13 @@
 from backend.serializers import *
-from user import conf
-
-from django.shortcuts import render, redirect
-from django.http import Http404, HttpResponse, JsonResponse
 from django.db import connection
-
-
-from rest_framework.views import APIView
+from django.http import Http404, HttpResponse, JsonResponse
+from django.shortcuts import redirect, render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from user import conf
+
 
 # class for the home page backend
 class Home(APIView):
@@ -16,19 +15,19 @@ class Home(APIView):
         # if the user is logged in then
         if conf.vehicleRegNo:
             # get data from db cursor
-            cursor = connection.cursor()
-            cursor.execute("SELECT * FROM Offer")
-            offers=cursor.fetchall()
+            # cursor = connection.cursor()
+            # cursor.execute("SELECT * FROM Offer")
+            # offers=cursor.fetchall()
             # convert the data from db to a py dictionary
             offersdata = []
-            for off in offers:
-                type = off[1]
-                amount = off[2]
-                time = off[3]
+            # for off in offers:
+            #     type = off[1]
+            #     amount = off[2]
+            #     time = off[3]
 
-                row = {'offerType' : type, 'offerAmount' : amount, 'offerTime' : time}
+            #     row = {'offerType' : type, 'offerAmount' : amount, 'offerTime' : time}
 
-                offersdata.append(row)
+            #     offersdata.append(row)
             # serialize the dictionary
             serializedOffers =  OfferSerializer(offersdata, many=True).data
             print(serializedOffers)
@@ -47,20 +46,23 @@ class Home(APIView):
 # class for login backend
 class Login(APIView):
     def post(self, request, format=None):
+        print("\n\n\n\n\n\n\nhijibiji")
+        print("123"+str(56))
         # get the login vehicle no and password
         vehicle = request.POST.get('vehicle')
         password = request.POST.get('password')
+        print(vehicle, password)
 
         ###########################################
         # create a dynamic query here to check if the 
         # following (user+pass) exists and figure out
         # if login success or failure
         ###########################################
-        nid1, password1, name1, email1, phoneNo1, address1, vehicleRegNo1, vehicleType1, balance1 = 0
+        # nid1, password1, name1, email1, phoneNo1, address1, vehicleRegNo1, vehicleType1, balance1 = 0
         check_user = True
         if check_user:
             # if user is logged in
-            conf.login(nid1, password1, name1, email1, phoneNo1, address1, vehicleRegNo1, vehicleType1, balance1)
+            # conf.login(nid1, password1, name1, email1, phoneNo1, address1, vehicleRegNo1, vehicleType1, balance1)
             return JsonResponse({
                 "loginSuccess": True,
                 }, safe=False)

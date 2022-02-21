@@ -13,12 +13,10 @@
 
 # How to run Frontend
 
-- At first got to frontend directory by `cd frontend`.
+- At first go to frontend directory by `cd frontend`.
 - Run `npm install` to import all node-modules.
 - After successfully importing node-modules run `npm start` to run the frontend.
 - Wait for a while, A window will open in browser. And thats it...
-
-
 
 # for backend prequisites
 

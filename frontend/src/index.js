@@ -1,3 +1,6 @@
+import { createTheme } from "@material-ui/core/styles";
+import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
+import { SnackbarProvider } from 'notistack';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from "react-router-dom";
@@ -7,14 +10,20 @@ import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <BrowserRouter>
+    <MuiThemeProvider theme={createTheme({
+      palette: {
+        type: "light"
+      },
+    })}>
+      <SnackbarProvider>
+        <App />
+      </SnackbarProvider>
+    </MuiThemeProvider>
     {/* <Fade>
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
-        <MuiThemeProvider theme={darkTheme}>
           <SnackbarProvider maxSnack={12}>
             <ScrollToTop /> */}
-    <App />
     {/* </SnackbarProvider>
-        </MuiThemeProvider>
       </MuiPickersUtilsProvider>
     </Fade> */}
   </BrowserRouter>,

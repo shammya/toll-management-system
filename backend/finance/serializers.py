@@ -27,7 +27,7 @@ class VehicleSerializer(serializers.Serializer):
 
 # for Offer table
 class OfferSerializer(serializers.Serializer):
-        # offerID = serializers.IntegerField()
+        offerID = serializers.IntegerField()
         offerType = serializers.CharField()
         offerAmount = serializers.FloatField(default=0)
         offerTime = serializers.IntegerField()
