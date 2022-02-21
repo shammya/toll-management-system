@@ -16,11 +16,13 @@
 
 import datetime
 from math import remainder
-from sqlite3 import Row
+from sqlite3 import Cursor, Row
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from finance.serializers import *
 from rest_framework.parsers import JSONParser
+
+from user import conf
 
 
 from rest_framework.decorators import api_view
@@ -35,14 +37,7 @@ from rest_framework.views import APIView
 
 
 
-def index(request):
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM PaidTollList")
-    ROW=cursor.fetchall()
-    #ROW="hello"
-        #print(object.content)
-    return HttpResponse(ROW)
- 
+
     
 # class SnippetList(APIView):
 #     """
@@ -134,11 +129,10 @@ class Recharge(APIView):
         
         print(offerserializer)
         
-        # Here query is needed for specific user or vehicle
-        # vehicle = request.POST.get('vehicle')
-
+        vehicle = conf.vehicleRegNo
+        sql="SELECT * FROM Recharge WHERE vehicleRegNo = \'"+vehicle+"\'"
         
-        cursor.execute("SELECT * FROM Recharge")
+        cursor.execute(sql)
         recharges = cursor.fetchall()
         
         rechargedata = []
@@ -181,6 +175,41 @@ class Recharge(APIView):
         date = datetime.today().strftime('%Y-%m-%d')
         # vehicleRegNo = request.POST.get('vehicle')
         
+        cursor = connection.cursor()
+        sql="SELECT MAX(rechargeID) FROM Recharge;"
+        cursor.execute(sql)
+        ROW=cursor.fetchall()
+        rid=ROW[0][0]
+        rid=rid+1
+        
+        
+        sql="INSERT INTO Recharge (rechargeID,vehicleRegNo,gatewayName,offerID,amount,date) VALUES ("+str(rid)+",\""+conf.vehicleRegNo+"\",\""+gateway+"\","+str(offerID)+","+str(amount)+",\""+date+"\")"
+        cursor.execute(sql)
+        
+        TotalOfferAmount = amount
+        
+        if(offerID != ''):
+            
+            sql="SELECT offerAmount FROM Offer WHERE offerID = "+str(offerID)
+            cursor.execute(sql)
+            ROW=cursor.fetchall()
+            offerAmount=ROW[0][0]
+            TotalOfferAmount=amount+(offerAmount*amount/100)
+            #added as percentage.if not percentage TotalOfferAmount=amount+offerAmount
+            
+        sql="SELECT balance FROM Vehicle WHERE vehicleRegNo = \""+conf.vehicleRegNo+"\""
+        cursor.execute(sql)
+        ROW=cursor.fetchall()
+        prevBalance=ROW[0][0]
+        newBalance=prevBalance+TotalOfferAmount
+
+        #to update the vehicle balance
+        
+        sql="UPDATE  Vehicle SET Balance = "+str(newBalance)+" WHERE vehicleRegNo = \""+conf.vehicleRegNo+"\""
+        cursor.execute(sql)
+            
+        
+        
         # here sql query is needed for entry for a recharge for specific vehicle reg no and increase his main balance/vehicle balance
 
         return JsonResponse(True, safe = False)
@@ -192,7 +221,8 @@ class Due(APIView):
         cursor = connection.cursor()
         # here sql query is needed
         # search dues for specific users
-        cursor.execute("SELECT * FROM Due")
+        sql="SELECT * from Due WHERE vehicleRegNo = \""+conf.vehicleRegNo+"\""
+        cursor.execute(sql)
         dues=cursor.fetchall()
         print("===========")
         print(dues)
@@ -204,13 +234,17 @@ class Due(APIView):
             remainderID = due[0]
             vehicleNo = due[1]
             boothid = due[2]
-            # here a query is needed for booth name regarding to the boothid
-            boothName = boothid
+            sql="SELECT name FROM TollBooth WHERE boothID = "+str(boothid)
+            
+            cursor.execute(sql)
+            ROW=cursor.fetchall()
+            boothname=ROW[0][0]
+            
             amount = due[3]
             date = due[5]
             print(date)
             
-            row = {'vehicleRegNo' : vehicleNo, 'boothName' : boothid, 'dueAmount' : amount, 'date' : date}
+            row = {'reminderId' : remainderID, 'vehicleRegNo' : vehicleNo, 'boothName' : boothname, 'dueAmount' : amount, 'date' : date}
             
             duesdata.append(row)
         
@@ -219,27 +253,66 @@ class Due(APIView):
     
     def post(self, request, format=None):
         
+        
+        cursor = connection.cursor()
+        
         paylist = request.data
         payamount = 0
         gotamountfromql = 0
-        remainderIDList = []
         for pay in paylist:
             
             remainderID = pay['reminderID']
             print(remainderID)
             # here a sql query is needed for searching the dues for specific users and fetch them to get the toll amount
-            payamount += gotamountfromql
-            remainderIDList.append(remainderID)
             
-        
+            sql="SELECT amount FROM Due WHERE remainderID =  "+str(remainderID)
+            cursor.execute(sql)
+            ROW=cursor.fetchall()
+            gotamountfromql=ROW[0][0]
+            
+            payamount += gotamountfromql
         # here a sql query is needed for the specific user if he can pay for the certain amount from his account balance
         
         balance = 0
+        sql="SELECT balance FROM Vehicle WHERE vehicleRegNo = \""+conf.vehicleRegNo+"\""
+        cursor.execute(sql)
+        ROW=cursor.fetchall()
+        balance=ROW[0][0]
+        
+        
         if(balance >= payamount):
             # here a sql query is needed to clear the dues for the specific user
             # delete operation for users
             # got the reminderID from remainderIDList
             # should this true value be in any variable???
+            
+            for pay in paylist:
+    
+                remainderID = pay['reminderID']
+                print(remainderID)
+                # here a sql query is needed for searching the dues for specific users and fetch them to get the toll amount
+                sql="SELECT amount FROM Due WHERE remainderID =  "+str(remainderID)
+                cursor.execute(sql)
+                ROW=cursor.fetchall()
+                gotamountfromql=ROW[0][0]
+                sql="SELECT routeID FROM Due WHERE remainderID =  "+str(remainderID)
+                cursor.execute(sql)
+                ROW=cursor.fetchall()
+                routeID=ROW[0][0]
+                sql="SELECT MAX(paymentID) FROM Payment"
+                cursor.execute(sql)
+                ROW=cursor.fetchall()
+                pid=ROW[0][0]
+                pid=pid+1
+                date=datetime.today().strftime('%Y-%m-%d')
+
+                sql="INSERT INTO Payment (paymentID,vehicleRegNo,routeID,amount,date) VALUES ("+str(pid)+",\""+str(conf.vehicleRegNo)+"\",2,"+str(gotamountfromql)+",\""+date+"\")"
+                cursor.execute(sql)
+                sql="DELETE FROM Due WHERE remainderID = "+str(remainderID)
+                cursor.execute(sql)
+            
+            
+            
             return JsonResponse(True, safe=False)
         
         else:
@@ -276,6 +349,8 @@ class RouteSelection(APIView):
     def post(self, request, format = None):
         
         selectedTolllist = request.data
+        cursor = connection.cursor()
+        cursor.execute("SELECT vehicleType FROM Vehicle w")
         
         totalTollamount = 0
         gotamountfromql = 0
@@ -283,7 +358,10 @@ class RouteSelection(APIView):
         for toll in selectedTolllist:
             
             boothID = toll['boothID']
-
+            
+            
+            
+            
             # here a sql query is needed for searching the tollbooth and tollamount for specific vehicleType get the toll amount
             totalTollamount += gotamountfromql
         

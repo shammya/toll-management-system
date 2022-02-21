@@ -100,3 +100,219 @@ POST--->>>>
 ---------
 1. CHECK IF ACCOUNT FOR LICENSE ALREADY EXISTS
 2. IF DOES NOT EXIST, CREATE A NEW DATABASE ENTRY IN REQUIRED TABLE WITH THE RECEIVED DATA
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+========================
+FOR BACKEND/FINANCE/VIEWS
+========================
+
+
+CLASS Recharge
+--------------
+
+GET--->>>>
+---------
+1.QUERY FOR RECHARE TABLE FOR A SPECIFIC VEHICLE OR USER(JAR SAPEKKHE RECHARGE KORA HOCCHE)
+
+#you have to get the vehicleRegNo in place of 'DHA-123'
+vehicle = 'DHA-123'
+sql="SELECT * FROM Recharge WHERE vehicleRegNo = \'"+vehicle+"\'"
+cursor.execute(sql)
+
+
+POST---->>>>
+-----------
+1.HERE SQL QUERY IS NEEDED FOR ADDING THE RECHARGE AMOUNT IN VEHICLES MAIN BALANCE
+2.SQL QUERY FOR SEARCH FOR SPECIFIC OFFER PERCENTAGE TO ADD BONUS IN RECHARGE PERCENTAGE
+
+#value is here just for test. get the value other than rechargeID
+sql="SELECT MAX(rechargeID) FROM Recharge;"
+cursor.execute(sql)
+ROW=cursor.fetchall()
+rid=ROW[0][0]
+rid=rid+1
+offerID = 1
+gateway = "bKash"
+amount = 100.0
+date = "22-02-2022"
+vehicleRegNo = "DHA-123"
+
+sql="INSERT INTO Recharge (rechargeID,vehicleRegNo,gatewayName,offerID,amount,date) VALUES ("+str(rid)+",\""+vehicleRegNo+"\",\""+gateway+"\","+str(offerID)+","+str(amount)+",\""+date+"\")"
+cursor.execute(sql)
+sql="SELECT offerAmount FROM Offer WHERE offerID = "+str(offerID)
+cursor.execute(sql)
+ROW=cursor.fetchall()
+offerAmount=ROW[0][0]
+TotalOfferAmount=amount+(offerAmount*amount/100)
+#added as percentage.if not percentage TotalOfferAmount=amount+offerAmount
+sql="SELECT balance FROM Vehicle WHERE vehicleRegNo = \""+vehicleRegNo+"\""
+cursor.execute(sql)
+ROW=cursor.fetchall()
+prevBalance=ROW[0][0]
+newBalance=prevBalance+TotalOfferAmount
+
+#to update the vehicle balance
+sql="UPDATE  Vehicle SET Balance = "+str(newBalance)+" WHERE vehicleRegNo = \""+vehicleRegNo+"\""
+cursor.execute(sql)
+
+
+
+CLASS Due
+----------
+
+GET---->>>>>
+------------
+
+
+[CHANGE TOLL BOOTH STATUS TO NAME, IN TOLL BOOTH TABLE]
+
+
+1.HERE A SQL QUERY IS NEEDED FOR GETTING THE BOOTH NAME RELATING TO THE BOOTH id
+#boothid set for test.will get boothname as string
+boothid=1;
+    
+sql="SELECT name FROM TollBooth WHERE boothID = "+str(boothid)
+cursor.execute(sql)
+ROW=cursor.fetchall()
+boothname=ROW[0][0]
+
+2.SQL QUERY IS NEEDED FOR SEARCHING DUES FOR SPECIFIC VEHICLES
+
+vehicleRegNo = "DHA-123"
+sql="SELECT * from Due WHERE vehicleRegNo = \""+vehicleRegNo+"\""
+cursor.execute(sql)
+dues=cursor.fetchall()
+
+
+POST----->>>>>
+---------------
+
+1.A SQL QUERY IS NEEDED FOR GETTING THE DUES FOR SPEICFIC REMAINDER ID(TOTOL DUE)
+
+remainderID=1;
+sql="SELECT amount FROM Due WHERE remainderID =  "+str(remainderID)
+cursor.execute(sql)
+ROW=cursor.fetchall()
+gotamountfromql=ROW[0][0]
+
+2.QUERY IS NEEDED FOR GETTING THE USER BALANCE
+
+vehicleRegNo = "DHA-123"
+sql="SELECT balance FROM Vehicle WHERE vehicleRegNo = \""+vehicleRegNo+"\""
+cursor.execute(sql)
+ROW=cursor.fetchall()
+balance=ROW[0][0]
+
+
+3.QUERY FOR (IF DUE PAYMENT SUCCESS), THE ADD THIS TO PAYMENT OBJECTS . CLEAR THE REMAINDER IN DUES LIST
+
+# have to add this code after balance checking
+if(balance >= payamount):
+    for pay in paylist:
+
+        remainderID = pay['reminderID']
+        print(remainderID)
+        # here a sql query is needed for searching the dues for specific users and fetch them to get the toll amount
+        sql="SELECT amount FROM Due WHERE remainderID =  "+str(remainderID)
+        cursor.execute(sql)
+        ROW=cursor.fetchall()
+        gotamountfromql=ROW[0][0]
+        sql="SELECT routeID FROM Due WHERE remainderID =  "+str(remainderID)
+        cursor.execute(sql)
+        ROW=cursor.fetchall()
+        routeID=ROW[0][0]
+        sql="SELECT MAX(paymentID) FROM Payment"
+        cursor.execute(sql)
+        ROW=cursor.fetchall()
+        pid=ROW[0][0]
+        pid=pid+1
+        date="22-02-2022" #get the current date
+
+        sql="INSERT INTO Payment (paymentID,vehicleRegNo,routeID,amount,date) VALUES ("+str(pid)+",\""+str(vehicleRegNo)+"\",2,"+str(gotamountfromql)+",\""+date+"\")"
+        cursor.execute(sql)
+        sql="DELETE FROM Due WHERE remainderID = "+str(remainderID)
+        cursor.execute(sql)
+
+
+
+CLASS RouteSelected
+--------------------
+
+GET------->>>>
+-------------
+
+X and Y coordinate need to be added in toll booth table
+
+1.no query here
+
+
+POST--->>>>>>>
+----------------
+
+1.HERE QUERY IS NEEDED FOR SEARCHING THE TOLLBOOTH AMOUNT REGARDING TO THE USERS VEHICLE TYPE 
+
+
+
+CLASS  PaymentRoute
+--------------------
+
+
+POST------>>>>>>>>>
+--------------------
+
+1.HERE QUERY IS NEEDED FOR SEARCHING THE TOLLBOOTH AMOUNT REGARDING TO THE USERS VEHICLE TYPE(SAME QUERY AS RouteSelected CLASS POST FUNCTION)
+
+2.QUERY FOR GETTING THE TOTAL BALANCE FOR VEHICLE OF THE CURRENT USER 
+
+3.(IF PAYMENT SUCCESS)
+QUERY IS NEEDED FOR MAKING PAYMENT TABLE ENTRY AND ALSO UPDATE THE BALANCE
+
+4.UPDATE (ROUTE ID?? NOT SURE)
+
+
+
+========================
+FOR BACKEND/USER/VIEWS
+========================
+CLASS Home
+--------------
+GET--->>>>
+---------
+1. A QUERY IS NEEDED TO GET THE LIST OF ALL OFFERS
+
+CLASS Login
+--------------
+POST--->>>>
+---------
+1. A QUERY IS NEEDED TO CHECK IF THE (USER+PASS) COMBO EXISTS IN DATABASE
+2. NEEDS TO RETURN nid, password, name, email, phoneNo, address, vehicleRegNo, vehicleType, balance
+
+CLASS Signup
+--------------
+POST--->>>>
+---------
+1. CHECK IF ACCOUNT FOR LICENSE ALREADY EXISTS
+2. IF DOES NOT EXIST, CREATE A NEW DATABASE ENTRY IN REQUIRED TABLE WITH THE RECEIVED DATA
