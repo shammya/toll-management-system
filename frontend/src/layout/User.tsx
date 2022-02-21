@@ -1,10 +1,11 @@
-import MenuIcon from "@mui/icons-material/Menu";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { AppBar, IconButton, Toolbar } from "@mui/material";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import { createTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import * as React from "react";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const theme = createTheme();
 
@@ -15,6 +16,8 @@ export default function User({
   title: string;
   children: any;
 }) {
+  const history = useHistory();
+  // console.log(history);
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleMenu = (event) => {
@@ -34,8 +37,9 @@ export default function User({
             color="inherit"
             aria-label="menu"
             sx={{ mr: 2 }}
+            onClick={(event) => history.goBack()}
           >
-            <MenuIcon />
+            {title != "Home" ? <ArrowBackIcon /> : <></>}
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {title}
