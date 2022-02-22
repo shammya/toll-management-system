@@ -24,8 +24,9 @@ import { useState } from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { SlidingUpTransition } from "tools/tools";
 import { GLOBAL } from "./../Configure";
-import { Route } from "./../models/Models";
+import { Home_Get, Route } from "./../models/Models";
 import { homeDataReload } from "./home";
+import { rechargeAction } from "./recharge";
 
 const drawerHeight = 205;
 
@@ -40,11 +41,22 @@ function TollInfo({ toll }: { toll: Route | null }) {
 }
 
 function PaymentDialog({ open, onClose, selectedTolls }) {
+  let homeInfo: Home_Get = JSON.parse(localStorage.getItem("info") + "");
   const { enqueueSnackbar } = useSnackbar();
   const history = useHistory();
   let totalAmount = 0;
   selectedTolls.map((item) => (totalAmount += item.tollAmount));
   function confirmPayment() {
+    if (totalAmount > homeInfo.userdata.balance) {
+      enqueueSnackbar("Insufficient balance.", {
+        variant: "error",
+        autoHideDuration: 2000,
+        action: rechargeAction(() => {
+          history.push({ pathname: "/recharge" });
+        }),
+      });
+      return;
+    }
     axios
       .post(GLOBAL.HOST + "/finance/payment/", selectedTolls)
       .then((response) => {
@@ -78,8 +90,8 @@ function PaymentDialog({ open, onClose, selectedTolls }) {
           justifyContent="space-between"
           spacing={1}
         >
-          <Grid item>
-            <Typography variant="h6">
+          <Grid item container justifyContent="center">
+            <Typography variant="h6" sx={{ textAlign: "center" }}>
               You are paying {totalAmount} tk
             </Typography>
           </Grid>

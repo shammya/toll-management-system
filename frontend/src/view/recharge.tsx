@@ -46,6 +46,18 @@ const imageItem: Gateway[] = [
   },
 ];
 
+export const rechargeAction = (onClick) => (
+  <>
+    <Button
+      variant="outlined"
+      sx={{ color: "white", borderColor: "white", fontSize: "10px" }}
+      onClick={onClick}
+    >
+      'Recharge'
+    </Button>
+  </>
+);
+
 export default function Recharge() {
   const history = useHistory();
   const { enqueueSnackbar } = useSnackbar();

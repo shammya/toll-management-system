@@ -13,32 +13,14 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import User from "layout/User";
-import MaterialTable from "material-table";
 import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { GLOBAL } from "./../Configure";
-import { DueInfo } from "./../models/Models";
+import { DueInfo, Home_Get } from "./../models/Models";
 import { SlidingUpTransition } from "./../tools/tools";
-
-const data = [
-  {
-    tollName: "ok toll",
-    amount: 320,
-  },
-  {
-    tollName: "ok toll",
-    amount: 320,
-  },
-  {
-    tollName: "ok toll",
-    amount: 320,
-  },
-  {
-    tollName: "ok toll",
-    amount: 320,
-  },
-];
+import { homeDataReload } from "./home";
+import { rechargeAction } from "./recharge";
 
 function DueInfoDetail({ dueInfo }: { dueInfo: DueInfo | null }) {
   return (
@@ -57,6 +39,35 @@ function DetailsDialog({
   dueInfo: DueInfo | null;
   onClose: () => void;
 }) {
+  let homeInfo: Home_Get = JSON.parse(localStorage.getItem("info") + "");
+  const { enqueueSnackbar } = useSnackbar();
+  const history = useHistory();
+  function confirmPayment() {
+    if (
+      dueInfo?.dueAmount != undefined &&
+      dueInfo?.dueAmount > homeInfo.userdata.balance
+    ) {
+      enqueueSnackbar("Insufficient balance.", {
+        variant: "error",
+        autoHideDuration: 2000,
+        action: rechargeAction(() => {
+          history.push({ pathname: "/recharge" });
+        }),
+      });
+      return;
+    }
+    axios
+      .post(GLOBAL.HOST + "/finance/payment/", [dueInfo])
+      .then((response) => {
+        if (response.data) {
+          homeDataReload(() => {
+            history.push({ pathname: "/home" });
+          });
+          enqueueSnackbar("Payment successful", { variant: "success" });
+        }
+      });
+  }
+
   return (
     <Dialog
       open={dueInfo != null}
@@ -69,7 +80,36 @@ function DetailsDialog({
         <DueInfoDetail dueInfo={dueInfo} />
       </DialogContent>
       <DialogActions>
-        <Button variant="contained">Pay now</Button>
+        <Grid
+          container
+          direction="column"
+          justifyContent="space-between"
+          spacing={1}
+        >
+          <Grid item container justifyContent="center">
+            <Typography variant="h6" sx={{ textAlign: "center" }}>
+              You are paying {dueInfo?.dueAmount} tk
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Grid container direction="row" spacing={2} justifyContent="center">
+              <Grid item>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={confirmPayment}
+                >
+                  Confirm
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button variant="contained" color="primary" onClick={onClose}>
+                  Cancel
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
       </DialogActions>
     </Dialog>
   );
@@ -84,8 +124,32 @@ function AllDueDetails({
   open: boolean;
   onClose: () => void;
 }) {
+  let homeInfo: Home_Get = JSON.parse(localStorage.getItem("info") + "");
   let total = 0;
+  const { enqueueSnackbar } = useSnackbar();
+  const history = useHistory();
   dueInfos.map((dueInfo) => (total = total + dueInfo.dueAmount));
+
+  function confirmPayment() {
+    if (total > homeInfo.userdata.balance) {
+      enqueueSnackbar("Insufficient balance.", {
+        variant: "error",
+        autoHideDuration: 2000,
+        action: rechargeAction(() => {
+          history.push({ pathname: "/recharge" });
+        }),
+      });
+      return;
+    }
+    axios.post(GLOBAL.HOST + "/finance/due/", dueInfos).then((response) => {
+      if (response.data) {
+        homeDataReload(() => {
+          history.push({ pathname: "/home" });
+        });
+        enqueueSnackbar("Payment successful", { variant: "success" });
+      }
+    });
+  }
   return (
     <Dialog
       open={open}
@@ -114,7 +178,36 @@ function AllDueDetails({
         </List>
       </DialogContent>
       <DialogActions>
-        <Button variant="contained">Pay total {total}tk</Button>
+        <Grid
+          container
+          direction="column"
+          justifyContent="space-between"
+          spacing={1}
+        >
+          <Grid item container justifyContent="center">
+            <Typography variant="h6" sx={{ textAlign: "center" }}>
+              You are paying {total} tk
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Grid container direction="row" spacing={2} justifyContent="center">
+              <Grid item>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={confirmPayment}
+                >
+                  Confirm
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button variant="contained" color="primary" onClick={onClose}>
+                  Cancel
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
       </DialogActions>
     </Dialog>
   );
@@ -166,22 +259,61 @@ export default function Dues() {
   ]);
   const [selectedToll, setSelectedToll] = useState<DueInfo | null>(null);
   const [showAllPayDialog, setShowAllPayDialog] = useState(false);
-  const [columns, setColumns] = useState([
-    { title: "Booth name", field: "boothName" },
-    { title: "Due", field: "dueAmount" },
-    {
-      title: "",
-      field: "",
-      render: (item) => (
-        <Button variant="contained" onClick={(event) => setSelectedToll(item)}>
-          See Details
-        </Button>
-      ),
-    },
-  ]);
+  // const [columns, setColumns] = useState([
+  //   { title: "Booth name", field: "boothName" },
+  //   { title: "Due", field: "dueAmount" },
+  //   {
+  //     title: "",
+  //     field: "",
+  //     render: (item) => (
+  //       <Button variant="contained" onClick={(event) => setSelectedToll(item)}>
+  //         See Details
+  //       </Button>
+  //     ),
+  //   },
+  // ]);
   return (
     <User title="Dues History">
-      <MaterialTable
+      <List>
+        <ListItem>
+          <Grid container direction="row" alignItems="center">
+            <Grid item xs={6}>
+              <Typography variant="h6">Booth name</Typography>
+            </Grid>
+            <Grid item xs={2}>
+              <Typography variant="h6">Due</Typography>
+            </Grid>
+          </Grid>
+        </ListItem>
+        <Divider />
+        <Divider />
+        {dueInfos.map((dueInfo) => (
+          <>
+            <ListItem>
+              <Grid container direction="row" alignItems="center">
+                <Grid item xs={6}>
+                  <Typography variant="body1">{dueInfo.boothName}</Typography>
+                </Grid>
+                <Grid item xs={2}>
+                  <Typography variant="body1">{dueInfo.dueAmount}</Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={(event) => setSelectedToll(dueInfo)}
+                    sx={{ fontSize: "11px" }}
+                  >
+                    See details
+                  </Button>
+                </Grid>
+              </Grid>
+            </ListItem>
+            <Divider />
+          </>
+        ))}
+      </List>
+      {/* <MaterialTable
         style={{ width: "100%", marginTop: 20 }}
         // @ts-ignore
         columns={columns.map((item) => ({
@@ -209,7 +341,7 @@ export default function Dues() {
         //     },
         //   },
         // ]}
-      />
+      /> */}
       <Grid
         container
         justifyContent="center"

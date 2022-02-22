@@ -15,9 +15,7 @@ ReactDOM.render(
         type: "light"
       },
     })}>
-      <SnackbarProvider maxSnack={6}>
-        <App />
-      </SnackbarProvider>
+      <App />
     </MuiThemeProvider>
     {/* <Fade>
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
