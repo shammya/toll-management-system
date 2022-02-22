@@ -11,9 +11,13 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
+import axios from "axios";
 import User from "layout/User";
 import MaterialTable from "material-table";
-import { useState } from "react";
+import { useSnackbar } from "notistack";
+import { useEffect, useState } from "react";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { GLOBAL } from "./../Configure";
 import { DueInfo } from "./../models/Models";
 import { SlidingUpTransition } from "./../tools/tools";
 
@@ -117,6 +121,17 @@ function AllDueDetails({
 }
 
 export default function Dues() {
+  const history = useHistory();
+  const { enqueueSnackbar } = useSnackbar();
+  const [dues, setDues] = useState<DueInfo[]>([]);
+
+  useEffect(() => {
+    axios.get(GLOBAL.HOST + "/finance/due/").then((response) => {
+      console.log(response);
+      setDues(response.data);
+    });
+  }, []);
+
   const [dueInfos, setDueInfos] = useState<DueInfo[]>([
     {
       vehicleRegNo: "sdfghjkreyoiasdjfk",

@@ -1,6 +1,7 @@
 from email.policy import default
 from logging import info
 from msilib.schema import ServiceInstall
+
 from rest_framework import serializers
 
 
@@ -53,6 +54,7 @@ class TollBoothSerializer(serializers.Serializer):
         posX = serializers.IntegerField()
         posY = serializers.IntegerField()
         status = serializers.CharField(max_length=50)
+        tollAmount = serializers.IntegerField()
 
     
 # for TollBooth amount info

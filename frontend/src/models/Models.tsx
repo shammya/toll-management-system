@@ -30,6 +30,7 @@ export class Route {
   posX: number;
   posY: number;
   location: string;
+  tollAmount: number;
 }
 
 export class User {

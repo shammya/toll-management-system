@@ -257,10 +257,18 @@ class RouteSelection(APIView):
             posY = tolls[4]
             location = tolls[1]
             
-            row = {'boothID' : boothID, 'boothName' : name, 'posX' : posX, 'posY' : posY, 'location' : location}
+            # Fetching toll amount - Mehedi
+            sql="SELECT amount FROM TollAmount WHERE boothID = "+str(boothID)+" AND vehicleType = \""+conf.vehicleType+"\""
+            cursor.execute(sql)
+            ROW=cursor.fetchall()
+            print(ROW)
+            tollAmount=ROW[0][0]
+             
+            row = {'boothID' : boothID, 'boothName' : name, 'posX' : posX, 'posY' : posY, 'location' : location, 'tollAmount': tollAmount}
             
             tollBoothData.append(row)
-            
+            # updated - Mehedi
+
         cursor.close()
         return JsonResponse(tollBoothData, safe=False)
     

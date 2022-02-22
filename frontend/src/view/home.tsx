@@ -64,15 +64,9 @@ export function homeDataReload(onExit: () => void) {
 }
 
 export default function Home() {
-  const location = useLocation();
-  // const { homeInfo }: { homeInfo: Home_Get } = location.state;
-  // const [homeInfo, setHomeInfo] = useState<Home_Get>();
   let homeInfo: Home_Get = JSON.parse(localStorage.getItem("info") + "");
   const history = useHistory();
   const { enqueueSnackbar } = useSnackbar();
-  // useEffect(() => {
-  //   setHomeInfo());
-  // }, [homeInfo]);
 
   function signOut() {
     axios.post(GLOBAL.HOST + "/logout/").then((response) => {

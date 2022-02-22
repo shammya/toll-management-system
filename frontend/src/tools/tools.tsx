@@ -1,4 +1,4 @@
-import { Slide, Snackbar } from "@material-ui/core";
+import { Slide } from "@material-ui/core";
 import { TransitionProps } from "@material-ui/core/transitions";
 import React from "react";
 
@@ -29,10 +29,13 @@ function stringToColor(string: string) {
 }
 
 export function stringAvatar(name: string) {
+  let fName = name.split(" ")[0][0].toUpperCase();
+  let lName = "";
+  if (name.split(" ").length > 1) lName = name.split(" ")[1][0].toUpperCase();
   return {
     sx: {
       bgcolor: stringToColor(name),
     },
-    children: `${name.split(" ")[0][0]}${name.split(" ")[1][0]}`,
+    children: `${fName}${lName}`,
   };
 }

@@ -3,63 +3,127 @@ import LocationSearchingIcon from "@mui/icons-material/LocationSearching";
 import SearchIcon from "@mui/icons-material/Search";
 import {
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  Divider,
   Drawer,
   Grid,
   IconButton,
   InputAdornment,
+  List,
+  ListItem,
   styled,
   TextField,
   Typography,
 } from "@mui/material";
+import axios from "axios";
 import User from "layout/User";
+import { useSnackbar } from "notistack";
 import { useState } from "react";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { SlidingUpTransition } from "tools/tools";
+import { GLOBAL } from "./../Configure";
 import { Route } from "./../models/Models";
+import { homeDataReload } from "./home";
 
-const tolls: Route[] = [
-  {
-    boothID: 1,
-    posX: 10,
-    posY: 20,
-    location: "Jatrabari1",
-  },
-  {
-    boothID: 2,
-    posX: 100,
-    posY: 20,
-    location: "Jatrabari2",
-  },
-  {
-    boothID: 3,
-    posX: 10,
-    posY: 200,
-    location: "Jatrabari3",
-  },
-  {
-    boothID: 4,
-    posX: 300,
-    posY: 200,
-    location: "Jatrabari4",
-  },
-  {
-    boothID: 5,
-    posX: 20,
-    posY: 200,
-    location: "Jatrabari5",
-  },
-];
 const drawerHeight = 205;
+
+function TollInfo({ toll }: { toll: Route | null }) {
+  return (
+    <Grid container direction="column">
+      <Typography variant="h5">{toll?.location}</Typography>
+      {/* <Typography>Date : {toll?.tollAmount}</Typography> */}
+      <Typography variant="h4">{toll?.tollAmount} tk</Typography>
+    </Grid>
+  );
+}
+
+function PaymentDialog({ open, onClose, selectedTolls }) {
+  const { enqueueSnackbar } = useSnackbar();
+  const history = useHistory();
+  let totalAmount = 0;
+  selectedTolls.map((item) => (totalAmount += item.tollAmount));
+  function confirmPayment() {
+    axios
+      .post(GLOBAL.HOST + "/finance/payment/", selectedTolls)
+      .then((response) => {
+        if (response.data) {
+          homeDataReload(() => {
+            history.push({ pathname: "/home" });
+          });
+          enqueueSnackbar("Payment successful", { variant: "success" });
+        }
+      });
+  }
+
+  return (
+    <Dialog open={open} keepMounted TransitionComponent={SlidingUpTransition}>
+      <DialogContent>
+        <List>
+          {selectedTolls.map((toll) => (
+            <>
+              <ListItem key={toll}>
+                <TollInfo toll={toll} />
+              </ListItem>
+              <Divider />
+            </>
+          ))}
+        </List>
+      </DialogContent>
+      <DialogActions>
+        <Grid
+          container
+          direction="column"
+          justifyContent="space-between"
+          spacing={1}
+        >
+          <Grid item>
+            <Typography variant="h6">
+              You are paying {totalAmount} tk
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Grid container direction="row" spacing={2} justifyContent="center">
+              <Grid item>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={confirmPayment}
+                >
+                  Confirm
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button variant="contained" color="primary" onClick={onClose}>
+                  Cancel
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </DialogActions>
+    </Dialog>
+  );
+}
 
 function BottomDrawer({
   open,
   onClose,
   selectedTolls,
   lastSelectedToll,
+  onSelectAllPressed,
+  onPayClicked,
 }: {
   open: boolean;
   onClose: () => void;
   selectedTolls: Route[];
   lastSelectedToll: Route | null;
+  onSelectAllPressed: () => void;
+  onPayClicked: () => void;
 }) {
+  let totalAmount = 0;
+  selectedTolls.map((item) => (totalAmount += item.tollAmount));
   return (
     <Drawer
       hideBackdrop
@@ -78,11 +142,15 @@ function BottomDrawer({
       <Grid container padding={2} direction="column">
         <Grid item container direction="row" spacing={3}>
           <Grid item>
-            <img width={100} src={require("assets/img/booth.png")} />
+            <img width={70} src={require("assets/img/booth.png")} />
           </Grid>
-          <Grid item direction="column">
-            <Typography variant="h4">{lastSelectedToll?.location}</Typography>
-            <Typography variant="h3">300 tk</Typography>
+          <Grid item>
+            <Grid container direction="column">
+              <Typography variant="h5">{lastSelectedToll?.location}</Typography>
+              <Typography variant="h4">
+                {lastSelectedToll?.tollAmount} tk
+              </Typography>
+            </Grid>
           </Grid>
         </Grid>
         <Grid
@@ -101,7 +169,9 @@ function BottomDrawer({
             </Typography>
           </Grid>
           <Grid item>
-            <Typography variant="h6">Total amount : 300 tk</Typography>
+            <Typography variant="h6">
+              Total amount : {totalAmount} tk
+            </Typography>
           </Grid>
         </Grid>
         <Grid item container direction="row" spacing={2}>
@@ -111,6 +181,7 @@ function BottomDrawer({
               variant="contained"
               color="primary"
               sx={{ fontSize: "0.77rem" }}
+              onClick={onSelectAllPressed}
             >
               Select all
             </Button>
@@ -121,6 +192,7 @@ function BottomDrawer({
               variant="contained"
               color="primary"
               sx={{ fontSize: "0.77rem" }}
+              onClick={onPayClicked}
             >
               Pay
             </Button>
@@ -161,12 +233,45 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
 }));
 
 export default function BrowseRoute() {
+  const history = useHistory();
+  const { enqueueSnackbar } = useSnackbar();
+
+  const [tolls, setTolls] = useState<Route[]>([]);
   const [destination, setDestination] = useState("");
   const [selectedTolls, setSelectedToll] = useState<Route[]>([]);
   const [lastSelectedToll, setLastSelectedToll] = useState<Route | null>(null);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+
+  const [showMap, setShowMap] = useState(false);
+  function loadTollAmount() {}
+  function queryForMap() {
+    console.log("query for map");
+    axios.get(GLOBAL.HOST + "/finance/route/").then(async (response) => {
+      // console.log(response.data);
+      if (response.data) {
+        setTolls(response.data);
+        setShowMap(true);
+      }
+    });
+  }
+
+  console.log(tolls);
+
+  function queryForTollAmount(selectedTolls: Route[]) {
+    axios
+      .post(GLOBAL.HOST + "/finance/route/", selectedTolls)
+      .then((response) => {
+        console.log(response.data);
+      });
+  }
 
   return (
     <User title="Browse Map">
+      <PaymentDialog
+        open={showPaymentDialog}
+        selectedTolls={selectedTolls}
+        onClose={() => setShowPaymentDialog(false)}
+      />
       <Grid container>
         <Grid
           sx={{ paddingTop: 2, paddingBottom: 1 }}
@@ -196,7 +301,14 @@ export default function BrowseRoute() {
               label="Destination"
               placeholder="Search destination"
               variant="outlined"
-              onBlur={(event) => setDestination(event.target.value)}
+              onBlur={(event) => {}}
+              onKeyPress={(event) => {
+                if (event.key == "Enter") {
+                  //@ts-ignore
+                  setDestination(event.target.value);
+                  queryForMap();
+                }
+              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -207,60 +319,65 @@ export default function BrowseRoute() {
             />
           </Grid>
         </Grid>
-
-        <Grid
-          item
-          sx={{ position: "relative", overflow: "scroll", height: "460px" }}
-        >
-          <Main open={selectedTolls.length != 0}>
-            <img src={require("assets/img/map.jpg")} />
-            {tolls.map((toll: Route) => (
-              <IconButton
-                key={toll.boothID}
-                onClick={(event) => {
-                  if (
-                    selectedTolls.find((item) => item.boothID == toll.boothID)
-                  ) {
-                    setSelectedToll(
-                      selectedTolls.filter(
-                        (item) => item.boothID != toll.boothID
-                      )
-                    );
-                    setLastSelectedToll(toll);
-                  } else {
-                    setSelectedToll([...selectedTolls, toll]);
-                    setLastSelectedToll(toll);
-                  }
-                }}
-                sx={{
-                  position: "absolute",
-                  zIndex: 99,
-                  left: toll.posX,
-                  top: toll.posY,
-                }}
-              >
-                <LocationOnIcon
-                  sx={{
-                    color: selectedTolls.find(
-                      (item) => item.boothID == toll.boothID
-                    )
-                      ? "#890101"
-                      : "red",
-                    fontSize: "50px",
+        {showMap && (
+          <Grid
+            item
+            sx={{ position: "relative", overflow: "scroll", height: "460px" }}
+          >
+            <Main open={selectedTolls.length != 0}>
+              <img src={require("assets/img/map.jpg")} />
+              {tolls.map((toll: Route) => (
+                <IconButton
+                  key={toll.boothID}
+                  onClick={(event) => {
+                    if (
+                      selectedTolls.find((item) => item.boothID == toll.boothID)
+                    ) {
+                      setSelectedToll(
+                        selectedTolls.filter(
+                          (item) => item.boothID != toll.boothID
+                        )
+                      );
+                      setLastSelectedToll(toll);
+                    } else {
+                      setSelectedToll([...selectedTolls, toll]);
+                      setLastSelectedToll(toll);
+                    }
                   }}
-                />
-              </IconButton>
-            ))}
-          </Main>
-          <BottomDrawer
-            open={selectedTolls.length != 0}
-            selectedTolls={selectedTolls}
-            lastSelectedToll={lastSelectedToll}
-            onClose={() => {
-              setSelectedToll([]);
-            }}
-          />
-        </Grid>
+                  sx={{
+                    position: "absolute",
+                    zIndex: 99,
+                    left: toll.posX,
+                    top: toll.posY,
+                  }}
+                >
+                  <LocationOnIcon
+                    sx={{
+                      color: selectedTolls.find(
+                        (item) => item.boothID == toll.boothID
+                      )
+                        ? "#890101"
+                        : "red",
+                      fontSize: "50px",
+                    }}
+                  />
+                </IconButton>
+              ))}
+            </Main>
+            <BottomDrawer
+              open={selectedTolls.length != 0}
+              selectedTolls={selectedTolls}
+              lastSelectedToll={lastSelectedToll}
+              onClose={() => {
+                setSelectedToll([]);
+              }}
+              onSelectAllPressed={() => {
+                setSelectedToll([...tolls]);
+              }}
+              onPayClicked={() => setShowPaymentDialog(true)}
+            />
+          </Grid>
+        )}
       </Grid>
     </User>
   );
