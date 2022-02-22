@@ -34,7 +34,7 @@ function App() {
           <Route path="/browse" component={BrowseRoute} />
           <Route path="/signup" component={SignUp} />
           <Route path="/dues" component={Dues} />
-          <Redirect from="/" to="/home" />
+          <Redirect from="/" to="/signin" />
         </Switch>
       </SnackbarProvider>
     </div>

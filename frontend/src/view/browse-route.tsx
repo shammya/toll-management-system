@@ -338,6 +338,22 @@ export default function BrowseRoute() {
           >
             <Main open={selectedTolls.length != 0}>
               <img src={require("assets/img/map.jpg")} />
+              <IconButton
+                key={100}
+                sx={{
+                  position: "absolute",
+                  zIndex: 99,
+                  left: 414,
+                  top: -5,
+                }}
+              >
+                <LocationOnIcon
+                  sx={{
+                    color: "blue",
+                    fontSize: "50px",
+                  }}
+                />
+              </IconButton>
               {tolls.map((toll: Route) => (
                 <IconButton
                   key={toll.boothID}

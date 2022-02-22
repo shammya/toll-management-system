@@ -56,16 +56,14 @@ function DetailsDialog({
       });
       return;
     }
-    axios
-      .post(GLOBAL.HOST + "/finance/payment/", [dueInfo])
-      .then((response) => {
-        if (response.data) {
-          homeDataReload(() => {
-            history.push({ pathname: "/home" });
-          });
-          enqueueSnackbar("Payment successful", { variant: "success" });
-        }
-      });
+    axios.post(GLOBAL.HOST + "/finance/due/", [dueInfo]).then((response) => {
+      if (response.data) {
+        homeDataReload(() => {
+          history.push({ pathname: "/home" });
+        });
+        enqueueSnackbar("Payment successful", { variant: "success" });
+      }
+    });
   }
 
   return (
@@ -216,47 +214,47 @@ function AllDueDetails({
 export default function Dues() {
   const history = useHistory();
   const { enqueueSnackbar } = useSnackbar();
-  const [dues, setDues] = useState<DueInfo[]>([]);
+  const [dueInfos, setDueInfos] = useState<DueInfo[]>([]);
 
   useEffect(() => {
     axios.get(GLOBAL.HOST + "/finance/due/").then((response) => {
       console.log(response);
-      setDues(response.data);
+      setDueInfos(response.data);
     });
   }, []);
 
-  const [dueInfos, setDueInfos] = useState<DueInfo[]>([
-    {
-      vehicleRegNo: "sdfghjkreyoiasdjfk",
-      boothName: "Jatrabari s1",
-      dueAmount: 60,
-      date: new Date(),
-    },
-    {
-      vehicleRegNo: "sdfghjkreyoiasdjfk",
-      boothName: "Jatrabari s2",
-      dueAmount: 60,
-      date: new Date(),
-    },
-    {
-      vehicleRegNo: "sdfghjkreyoiasdjfk",
-      boothName: "Jatrabari s3",
-      dueAmount: 60,
-      date: new Date(),
-    },
-    {
-      vehicleRegNo: "sdfghjkreyoiasdjfk",
-      boothName: "Jatrabari s4",
-      dueAmount: 60,
-      date: new Date(),
-    },
-    {
-      vehicleRegNo: "sdfghjkreyoiasdjfk",
-      boothName: "Jatrabari s5",
-      dueAmount: 60,
-      date: new Date(),
-    },
-  ]);
+  // const [dueInfos, setDueInfos] = useState<DueInfo[]>([
+  //   {
+  //     vehicleRegNo: "sdfghjkreyoiasdjfk",
+  //     boothName: "Jatrabari s1",
+  //     dueAmount: 60,
+  //     date: new Date(),
+  //   },
+  //   {
+  //     vehicleRegNo: "sdfghjkreyoiasdjfk",
+  //     boothName: "Jatrabari s2",
+  //     dueAmount: 60,
+  //     date: new Date(),
+  //   },
+  //   {
+  //     vehicleRegNo: "sdfghjkreyoiasdjfk",
+  //     boothName: "Jatrabari s3",
+  //     dueAmount: 60,
+  //     date: new Date(),
+  //   },
+  //   {
+  //     vehicleRegNo: "sdfghjkreyoiasdjfk",
+  //     boothName: "Jatrabari s4",
+  //     dueAmount: 60,
+  //     date: new Date(),
+  //   },
+  //   {
+  //     vehicleRegNo: "sdfghjkreyoiasdjfk",
+  //     boothName: "Jatrabari s5",
+  //     dueAmount: 60,
+  //     date: new Date(),
+  //   },
+  // ]);
   const [selectedToll, setSelectedToll] = useState<DueInfo | null>(null);
   const [showAllPayDialog, setShowAllPayDialog] = useState(false);
   // const [columns, setColumns] = useState([

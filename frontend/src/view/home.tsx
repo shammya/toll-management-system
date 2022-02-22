@@ -1,4 +1,4 @@
-import { Card, CardActionArea, CardContent, Chip } from "@mui/material";
+import { Card, CardActionArea, CardContent, Chip, Link } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Grid from "@mui/material/Grid";
 import { createTheme } from "@mui/material/styles";
@@ -30,30 +30,36 @@ const pages = [
   },
 ];
 
+const bgColor = "#ACE1E1";
+
 export function OfferInfo({ offers = [] }: { offers: Offer[] | undefined }) {
   let d = new Date();
   d.setDate(d.getDate() + 10);
   return (
     <Grid container spacing={2} sx={{ marginTop: 2, marginBottom: 2 }}>
       {offers.map((offer, idx) => (
-        <Grid item xs={6} key={idx}>
-          <Card>
+        <Grid item xs={12} key={idx}>
+          <Card sx={{ backgroundColor: "#E88572" }}>
             <CardContent>
-              <Grid container direction="column" alignItems="center">
-                <Typography variant="h3">{offer.offerAmount}%</Typography>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    lineHeight: "1",
-                    textAlign: "center",
-                    marginBottom: "4px",
-                  }}
-                >
-                  cashback on recharge
-                </Typography>
-                <Typography variant="body2">
-                  Till : {d.toLocaleDateString()}
-                </Typography>
+              <Grid container direction="row" spacing={2} alignItems="center">
+                <Grid item>
+                  <Typography variant="h3">{offer.offerAmount}%</Typography>
+                </Grid>
+                <Grid item direction="column">
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      lineHeight: "1",
+                      textAlign: "center",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    bonus on recharge
+                  </Typography>
+                  <Typography variant="body2">
+                    Till : {d.toLocaleDateString()}
+                  </Typography>
+                </Grid>
               </Grid>
             </CardContent>
           </Card>
@@ -108,13 +114,19 @@ export default function Home() {
             <Grid item container>
               <Chip
                 label={homeInfo?.userdata?.username}
-                sx={{ width: "100%", textAlign: "center", fontSize: 20 }}
+                sx={{
+                  backgroundColor: bgColor,
+                  width: "100%",
+                  textAlign: "center",
+                  fontSize: 20,
+                }}
               />
             </Grid>
             <Grid item container>
               <Chip
                 label={"Balance : " + homeInfo?.userdata?.balance}
                 sx={{
+                  backgroundColor: bgColor,
                   width: "100%",
                   textAlign: "center",
                   fontSize: 20,
@@ -129,7 +141,13 @@ export default function Home() {
             {...stringAvatar(
               homeInfo?.userdata?.username ? homeInfo?.userdata?.username : ""
             )}
-            sx={{ width: 100, height: 100, fontSize: "3rem" }}
+            sx={{
+              backgroundColor: bgColor,
+              color: "black",
+              width: 100,
+              height: 100,
+              fontSize: "3rem",
+            }}
           />
         </Grid>
       </Grid>
@@ -137,28 +155,34 @@ export default function Home() {
       <Grid container spacing={2}>
         {pages.map((page, idx) => (
           <Grid item xs={6} key={idx}>
-            <Card>
-              <CardActionArea
-                onClick={(event) => {
-                  history.push(page.src);
-                }}
-              >
-                <CardContent sx={{ height: 100 }}>
-                  <Grid
-                    sx={{ height: "100%" }}
-                    container
-                    justifyContent="center"
-                    alignItems="center"
-                  >
-                    <Grid item>
-                      <Typography variant="h5" sx={{ textAlign: "center" }}>
-                        {page.name}
-                      </Typography>
+            <Link href={page.src}>
+              <Card>
+                <CardActionArea
+                  // onClick={(event) => {
+                  //   history.push(page.src);
+                  // }}
+                  sx={{ backgroundColor: bgColor }}
+                >
+                  <CardContent sx={{ height: 100 }}>
+                    <Grid
+                      sx={{ height: "100%" }}
+                      container
+                      justifyContent="center"
+                      alignItems="center"
+                    >
+                      <Grid item>
+                        <Typography
+                          variant="h5"
+                          sx={{ textAlign: "center", fontWeight: "bold" }}
+                        >
+                          {page.name}
+                        </Typography>
+                      </Grid>
                     </Grid>
-                  </Grid>
-                </CardContent>
-              </CardActionArea>
-            </Card>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            </Link>
           </Grid>
         ))}
       </Grid>

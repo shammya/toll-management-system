@@ -19,6 +19,7 @@ export class RechargeInfo {
 }
 
 export class DueInfo {
+  reminderId: number;
   vehicleRegNo: string;
   boothName: string;
   dueAmount: number;

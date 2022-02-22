@@ -172,7 +172,7 @@ class Due(APIView):
         gotamountfromql = 0
         for pay in paylist:
             
-            remainderID = pay['reminderID']
+            remainderID = pay['reminderId']
             print(remainderID)
             # here a sql query is needed for searching the dues for specific users and fetch them to get the toll amount
             
@@ -199,7 +199,7 @@ class Due(APIView):
             
             for pay in paylist:
     
-                remainderID = pay['reminderID']
+                remainderID = pay['reminderId']
                 print(remainderID)
                 # here a sql query is needed for searching the dues for specific users and fetch them to get the toll amount
                 sql="SELECT amount FROM Due WHERE remainderID =  "+str(remainderID)
