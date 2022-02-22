@@ -46,7 +46,7 @@ export default function User({
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {title}
           </Typography>
-          {title != "Home" ? (
+          {title == "Home" ? (
             <div>
               <Button
                 color="secondary"

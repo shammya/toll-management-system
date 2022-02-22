@@ -2,23 +2,21 @@
 from datetime import date
 from math import remainder
 from sqlite3 import Cursor, Row
-from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from finance.serializers import *
-from rest_framework.parsers import JSONParser
 
+from django.db import connection
+from django.http import Http404, HttpResponse, JsonResponse
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
+from rest_framework.parsers import JSONParser
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from user import conf
 
+from finance.serializers import *
 
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-
-from django.shortcuts import render
-from django.db import connection
 # Create your views here.
 
-from django.http import Http404
-from rest_framework.views import APIView
 
 class Recharge(APIView):
     
@@ -108,6 +106,7 @@ class Recharge(APIView):
             cursor.execute(sql)
             ROW=cursor.fetchall()
             offerAmount=ROW[0][0]
+            amount = float(amount)
             TotalOfferAmount=amount+(offerAmount*amount/100)
             #added as percentage.if not percentage TotalOfferAmount=amount+offerAmount
             

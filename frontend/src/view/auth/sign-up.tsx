@@ -16,6 +16,7 @@ import { useSnackbar } from "notistack";
 import * as React from "react";
 import { useState } from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { homeDataReload } from "view/home";
 import { Signup_Post } from "./../../models/Models";
 
 const theme = createTheme();
@@ -104,7 +105,11 @@ export default function SignUp() {
     axios.post(GLOBAL.HOST + `/signup/`, signUpInfo).then((response) => {
       console.log(response);
       if (response.data.signupSuccess) {
-        history.push({ pathname: "/home" });
+        homeDataReload(() => {
+          history.push({
+            pathname: "/home",
+          });
+        });
       } else {
         enqueueSnackbar("You have already an account. Please sign in", {
           variant: "error",

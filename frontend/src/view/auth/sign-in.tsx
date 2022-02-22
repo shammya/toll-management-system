@@ -14,6 +14,7 @@ import { GLOBAL } from "Configure";
 import { useSnackbar } from "notistack";
 import * as React from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { homeDataReload } from "view/home";
 import { Login_Post } from "./../../models/Models";
 
 const theme = createTheme();
@@ -45,7 +46,11 @@ export default function SignIn() {
       .then((response) => {
         console.log(response);
         if (response.data.loginSuccess) {
-          history.push({ pathname: "/home" });
+          homeDataReload(() => {
+            history.push({
+              pathname: "/home",
+            });
+          });
         } else {
           enqueueSnackbar("Vehicle no or password mismatch!! Try again", {
             variant: "error",
